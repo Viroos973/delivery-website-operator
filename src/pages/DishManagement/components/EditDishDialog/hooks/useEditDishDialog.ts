@@ -6,19 +6,18 @@ import { usePutUpdateDishMutation } from "@/utils/api/hooks/usePutUpdateDishMuta
 import {useGetDishByIdQuery} from "@/utils/api/hooks/useGetDishByIdQuery.ts";
 import {useGetCategoriesQuery} from "@/utils/api/hooks/useGetCategoriesQuery.ts";
 
-export const useEditDishDialog = (
-    setIsOpen: (isOpen: boolean) => void,
-    reloadDishes: () => void,
-    dishId?: string) => {
+export const useEditDishDialog = (setIsOpen: (isOpen: boolean) => void, reloadDishes: () => void, isOpen: boolean, dishId?: string) => {
     const editDish = usePutUpdateDishMutation()
     const dish = useGetDishByIdQuery({ id: dishId! }, {
         options: {
-            enabled: !!dishId
+            enabled: (!!dishId && isOpen)
         }
     })
     const categories = useGetCategoriesQuery();
 
-    const [selectedFile, setSelectedFile] = useState(null);
+    const [selectedFile, setSelectedFile] = useState<File[]>([]);
+    const [photosToDelete, setPhotosToDelete] = useState<string[]>([]);
+    const [existingPhotos, setExistingPhotos] = useState<string[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
     const ingredients = [
         {
@@ -63,22 +62,15 @@ export const useEditDishDialog = (
         }
     ] as const
 
-    const handleFileChange = (e: any) => {
-        const file = e.target.files?.[0] || null;
-        setSelectedFile(file);
-    };
-
     const editDishForm = useForm<EditDishSchema>({
         resolver: zodResolver(editDishSchema),
         defaultValues: {
             name: '',
             categoryId: '',
             price: 0,
-            rate: 0,
             photos: [],
             description: '',
-            ingredients: [],
-            isAvailable: true
+            ingredients: []
         }
     })
 
@@ -91,12 +83,20 @@ export const useEditDishDialog = (
         append("")
     }
 
-    const removePhoto = (index: number) => {
-        remove(index)
+    const removePhoto = (fileIndex: number, photoUrl?: string) => {
+        if (photoUrl && dish.data?.data.foodDetails.photos.includes(photoUrl)) {
+            setPhotosToDelete(prev => [...prev, photoUrl])
+            setExistingPhotos(prev => prev.filter(photo => photo !== photoUrl))
+        } else {
+            setSelectedFile(prev => prev.filter((_, index) => index !== (fileIndex - existingPhotos.length)))
+        }
+
+        remove(fileIndex)
     }
 
-    const updatePhoto = (index: number, newUrl: string) => {
-        editDishForm.setValue(`photos.${index}`, newUrl)
+    const onFileSelected = (file: File, index: number) => {
+        setSelectedFile(prev => [...prev, file])
+        editDishForm.setValue(`photos.${index}`, URL.createObjectURL(file))
     }
 
     const onSubmit = editDishForm.handleSubmit(async (value) => {
@@ -104,14 +104,17 @@ export const useEditDishDialog = (
         await editDish.mutateAsync({
             params: {
                 id: dishId, name: value.name, categoryId: value.categoryId,
-                photos: value.photos, rate: value.rate,
+                newPhotos: selectedFile, photosToDelete: photosToDelete, existingPhotos: existingPhotos,
                 price: value.price, description: value.description,
-                ingredients: value.ingredients, isAvailable: value.isAvailable
+                ingredients: value.ingredients
             }
         })
 
         reloadDishes()
         editDishForm.reset()
+        setSelectedFile([])
+        setPhotosToDelete([])
+        setExistingPhotos(dish.data?.data.foodDetails.photos || [])
         setIsOpen(false)
     })
 
@@ -122,12 +125,13 @@ export const useEditDishDialog = (
             name: dish.data.data.foodDetails.name,
             categoryId: dish.data.data.foodDetails.categoryId,
             price: dish.data.data.foodDetails.price,
-            rate: dish.data.data.foodDetails.rate,
             photos: dish.data.data.foodDetails.photos,
             description: dish.data.data.foodDetails.description,
-            ingredients: dish.data.data.foodDetails.ingredients,
-            isAvailable: dish.data.data.foodDetails.isAvailable
+            ingredients: dish.data.data.foodDetails.ingredients
         })
+        setSelectedFile([])
+        setPhotosToDelete([])
+        setExistingPhotos(dish.data.data.foodDetails.photos)
         setSelectedCategory(dish.data.data.foodDetails.categoryId)
     }, [dish.data]);
 
@@ -142,11 +146,10 @@ export const useEditDishDialog = (
         functions: {
             onSubmit,
             setSelectedFile,
-            handleFileChange,
             handleSetCategory,
             addPhoto,
             removePhoto,
-            updatePhoto
+            onFileSelected
         }
     }
 }

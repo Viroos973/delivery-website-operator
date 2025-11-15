@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button.tsx";
 import { useEditDishDialog } from "./hooks/useEditDishDialog";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select.tsx";
 import { Checkbox } from "@/components/ui/checkbox";
-import {Plus, X} from "lucide-react";
+import {Plus} from "lucide-react";
+import ImageUploader from "@/components/ImageUploader/ImageUploader.tsx";
 
 interface NewOperatorDialogProps {
     setIsOpen: (isOpen: boolean) => void;
@@ -17,7 +18,7 @@ interface NewOperatorDialogProps {
 const EditDishDialog = ({ setIsOpen, isOpen, reloadDishes, dishId }: NewOperatorDialogProps) => {
     const { state,
         form,
-        functions } = useEditDishDialog(setIsOpen, reloadDishes, dishId);
+        functions } = useEditDishDialog(setIsOpen, reloadDishes, isOpen, dishId);
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -67,28 +68,6 @@ const EditDishDialog = ({ setIsOpen, isOpen, reloadDishes, dishId }: NewOperator
                             </div>
                             <FormField
                                 control={form.control}
-                                name="rate"
-                                render={({field, fieldState}) => (
-                                    <FormItem className="w-[100%]">
-                                        <FormLabel className="text-sm font-normal">
-                                            {"Рейтинг блюда"}
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="Рейтинг блюда" {...field} type="number"
-                                                   onChange={(e) => {
-                                                       const value = e.target.value;
-                                                       field.onChange(value === "" ? "" : Number(value));
-                                                   }}
-                                            />
-                                        </FormControl>
-                                        {fieldState.error && (
-                                            <p className="text-red-600 text-xs mt-1">{fieldState.error.message}</p>
-                                        )}
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
                                 name="price"
                                 render={({field, fieldState}) => (
                                     <FormItem className="w-[100%]">
@@ -130,26 +109,27 @@ const EditDishDialog = ({ setIsOpen, isOpen, reloadDishes, dishId }: NewOperator
                                 <p className="text-sm font-normal">{"Фотография блюда"}</p>
                                 <div className="flex flex-col gap-2 w-[100%]">
                                     {state.fields.map((photoField, index) => (
-                                        <div key={photoField.id} className='flex items-center gap-2'>
-                                            <FormField
-                                                control={form.control}
-                                                name={`photos.${index}`}
-                                                render={({field, fieldState}) => (
-                                                    <FormItem className="flex-1">
-                                                        <FormControl>
-                                                            <Input placeholder="Введите url картинки" {...field} />
-                                                        </FormControl>
-                                                        {fieldState.error && (
-                                                            <p className="text-red-600 text-xs mt-1">{fieldState.error.message}</p>
-                                                        )}
-                                                    </FormItem>
-                                                )}
-                                            />
-                                            <Button type='button' variant='ghost'
-                                                    onClick={() => functions.removePhoto(index)}>
-                                                <X color='#F87171'/>
-                                            </Button>
-                                        </div>
+                                        <FormField
+                                            key={photoField.id}
+                                            control={form.control}
+                                            name={`photos.${index}`}
+                                            render={({field, fieldState}) => (
+                                                <FormItem className="flex-1">
+                                                    <FormControl>
+                                                        <ImageUploader onFileSelected={functions.onFileSelected}
+                                                                       removePhoto={() => functions.removePhoto(index, field.value)}
+                                                                       index={index} photoUrl={field.value}>
+                                                            <p className="text-gray-500">
+                                                                {"Выберите фотграфию блюда"}
+                                                            </p>
+                                                        </ImageUploader>
+                                                    </FormControl>
+                                                    {fieldState.error && (
+                                                        <p className="text-red-600 text-xs mt-1">{fieldState.error.message}</p>
+                                                    )}
+                                                </FormItem>
+                                            )}
+                                        />
                                     ))}
                                     <Button type='button' variant='ghost' onClick={functions.addPhoto}>
                                         <Plus color='#9CA3AF'/>
@@ -177,15 +157,14 @@ const EditDishDialog = ({ setIsOpen, isOpen, reloadDishes, dishId }: NewOperator
                                                         <FormControl>
                                                             <Checkbox
                                                                 checked={field.value?.includes(ingredient.id)}
-                                                                onCheckedChange={(checked) => {
-                                                                    checked
-                                                                        ? field.onChange([...field.value, ingredient.id])
-                                                                        : field.onChange(
-                                                                            field.value?.filter(
-                                                                                (value) => value !== ingredient.id
-                                                                            )
+                                                                onCheckedChange={(checked) => checked
+                                                                    ? field.onChange([...field.value, ingredient.id])
+                                                                    : field.onChange(
+                                                                        field.value?.filter(
+                                                                            (value) => value !== ingredient.id
                                                                         )
-                                                                }}
+                                                                    )
+                                                                }
                                                             />
                                                         </FormControl>
                                                         <FormLabel className="text-sm font-normal">

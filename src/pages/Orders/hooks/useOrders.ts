@@ -16,7 +16,8 @@ const ITEMS_PER_PAGE = 1000;
 export const useOrders = () => {
     const { authenticated, roles, userId } = useAuth()
     const [searchParams, setSearchParams] = useSearchParams();
-    const [isMyOrder, setIsMyOrder] = useState<boolean>(false);
+    const [isMyOrder, setIsMyOrder] = useState<boolean>(true);
+    const [isOrderWithoutOperator, setIsOrderWithoutOperator] = useState<boolean>(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [isGoToStart, setGoToStart] = useState(false);
 
@@ -58,7 +59,7 @@ export const useOrders = () => {
         sort: []
     }, {
         options: {
-            enabled: !isAdmin && !isMyOrder
+            enabled: !isAdmin && isOrderWithoutOperator
         }
     })
 
@@ -83,10 +84,13 @@ export const useOrders = () => {
         if (operators) params.operators = operators;
 
         const myOrder = searchParams.get('isMyOrder');
-        setIsMyOrder(myOrder === 'true')
+        setIsMyOrder(!myOrder || myOrder === 'true')
+
+        const withoutOperator = searchParams.get('withoutOperator');
+        setIsOrderWithoutOperator(!withoutOperator || withoutOperator === 'true')
 
         return params;
-    }, []);
+    }, [searchParams]);
 
     const [filters, setFilters] = useState<OrderListFilters>(initialFilters);
 
@@ -109,13 +113,20 @@ export const useOrders = () => {
             params.delete('isMyOrder');
         } else if (isMyOrder) {
             params.set('isMyOrder', 'true');
-
         } else {
             params.set('isMyOrder', 'false');
         }
 
+        if (authenticated && roles.includes('ADMIN')) {
+            params.delete('withoutOperator');
+        } else if (isOrderWithoutOperator) {
+            params.set('withoutOperator', 'true');
+        } else {
+            params.set('withoutOperator', 'false');
+        }
+
         setSearchParams(params, { replace: true });
-    }, [filters, isMyOrder])
+    }, [authenticated, filters, isMyOrder, isOrderWithoutOperator, roles])
 
     const ordersWithFilters = useGetOrdersWithFiltersQuery({
         operatorName: filters.operators,
@@ -134,7 +145,7 @@ export const useOrders = () => {
             return ordersWithFilters;
         } else if (!isAdmin && isMyOrder) {
             return myOrders;
-        } else if (!isAdmin && !isMyOrder) {
+        } else if (!isAdmin && isOrderWithoutOperator) {
             return ordersWithoutOperator;
         }
 
@@ -162,8 +173,20 @@ export const useOrders = () => {
         setGoToStart(prev => !prev)
     }
 
+    const handleSetWithoutOperator = (checked: boolean) => {
+        setIsOrderWithoutOperator(checked)
+        setGoToStart(prev => !prev)
+    }
+
     return {
-        state: { statuses, filters, isMyOrder, authenticated, roles, activeQuery, isGoToStart},
-        functions: { debouncedSearchByName, handleSelectStatus, setFilters, handleSetIsMyOrder, setCurrentPage}
+        state: { statuses, filters, isMyOrder, isOrderWithoutOperator, authenticated, roles, activeQuery, isGoToStart},
+        functions: {
+            debouncedSearchByName,
+            handleSelectStatus,
+            handleSetIsMyOrder,
+            handleSetWithoutOperator,
+            setFilters,
+            setCurrentPage
+        }
     }
 };

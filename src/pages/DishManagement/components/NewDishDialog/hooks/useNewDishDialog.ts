@@ -10,7 +10,7 @@ export const useNewDishDialog = (setIsOpen: (isOpen: boolean) => void, isOpen: b
     const categories = useGetCategoriesQuery();
 
     const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
-    const [selectedFile, setSelectedFile] = useState(null);
+    const [selectedFile, setSelectedFile] = useState<File[]>([]);
     const ingredients = [
         {
             id: "ONION",
@@ -54,18 +54,12 @@ export const useNewDishDialog = (setIsOpen: (isOpen: boolean) => void, isOpen: b
         }
     ] as const
 
-    const handleFileChange = (e: any) => {
-        const file = e.target.files?.[0] || null;
-        setSelectedFile(file);
-    };
-
     const newDishForm = useForm<NewDishSchema>({
         resolver: zodResolver(newDishSchema),
         defaultValues: {
             name: '',
             categoryId: '',
             price: 0,
-            rate: 0,
             photos: [],
             description: '',
             ingredients: []
@@ -81,19 +75,21 @@ export const useNewDishDialog = (setIsOpen: (isOpen: boolean) => void, isOpen: b
         append("")
     }
 
-    const removePhoto = (index: number) => {
-        remove(index)
+    const removePhoto = (fileIndex: number) => {
+        setSelectedFile(prev => prev.filter((_, index) => index !== fileIndex))
+        remove(fileIndex)
     }
 
-    const updatePhoto = (index: number, newUrl: string) => {
-        newDishForm.setValue(`photos.${index}`, newUrl)
+    const onFileSelected = (file: File, index: number) => {
+        setSelectedFile(prev => [...prev, file])
+        newDishForm.setValue(`photos.${index}`, URL.createObjectURL(file))
     }
 
     const onSubmit = newDishForm.handleSubmit(async (value) => {
         await createDish.mutateAsync({
             params: {
                 name: value.name, categoryId: value.categoryId,
-                photos: value.photos, rate: value.rate,
+                photos: selectedFile,
                 price: value.price, description: value.description,
                 ingredients: value.ingredients
             }
@@ -101,6 +97,7 @@ export const useNewDishDialog = (setIsOpen: (isOpen: boolean) => void, isOpen: b
 
         reloadDishes()
         newDishForm.reset()
+        setSelectedFile([])
         setIsOpen(false)
     })
 
@@ -110,11 +107,11 @@ export const useNewDishDialog = (setIsOpen: (isOpen: boolean) => void, isOpen: b
                 name: '',
                 categoryId: '',
                 price: 0,
-                rate: 0,
                 photos: [],
                 description: '',
                 ingredients: []
             })
+            setSelectedFile([])
         }
     }, [isOpen])
 
@@ -128,12 +125,10 @@ export const useNewDishDialog = (setIsOpen: (isOpen: boolean) => void, isOpen: b
         form: newDishForm,
         functions: {
             onSubmit,
-            setSelectedFile,
-            handleFileChange,
+            onFileSelected,
             handleSetCategory,
             addPhoto,
-            removePhoto,
-            updatePhoto
+            removePhoto
         }
     }
 }

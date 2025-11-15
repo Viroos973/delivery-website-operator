@@ -1,17 +1,12 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useRef} from "react";
 
-export const useImageUploader = (onFileSelected: (file: File | null) => void, files: File) => {
+export const useImageUploader = (onFileSelected: (file: File, index: number) => void, index: number) => {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files.length > 0) {
             const file = event.target.files[0];
-            if (files !== file) {
-                onFileSelected(file);
-            } else {
-                onFileSelected(null);
-            }
+            onFileSelected(file, index);
         }
     };
 
@@ -21,12 +16,8 @@ export const useImageUploader = (onFileSelected: (file: File | null) => void, fi
         }
     };
 
-    useEffect(() => {
-        setImagePreview(URL.createObjectURL(files));
-    }, [files]);
-
     return {
-        state: { fileInputRef, imagePreview },
+        state: { fileInputRef },
         functions: { handleFileChange, handleClick }
     }
 }

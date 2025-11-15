@@ -45,14 +45,22 @@ const Orders = () => {
                     </NavLink>
                 </div>
             ) : (
-                <div className="flex justify-items-start w-[90%] items-center gap-4">
-                    <span>Мои заказы</span>
-                    <Switch className="cursor-pointer" checked={state.isMyOrder}
-                            onCheckedChange={(checked: boolean) => functions.handleSetIsMyOrder(checked)}/>
+                <div className="flex items-center gap-8 w-[90%]">
+                    <div className="flex justify-items-start items-center gap-4">
+                        <span>Мои заказы</span>
+                        <Switch className="cursor-pointer" checked={state.isMyOrder}
+                                onCheckedChange={(checked: boolean) => functions.handleSetIsMyOrder(checked)}/>
+                    </div>
+                    <div className="flex justify-items-start items-center gap-4">
+                        <span>Заказы без оператора</span>
+                        <Switch className="cursor-pointer" checked={state.isOrderWithoutOperator}
+                                onCheckedChange={(checked: boolean) => functions.handleSetWithoutOperator(checked)}/>
+                    </div>
                 </div>
             )}
             {state.activeQuery.data && state.activeQuery.data?.data.length > 0 ? (
-                <div className='flex flex-col items-center w-[90%] border border-black rounded-lg divide-y divide-black mb-4'>
+                <div
+                    className='flex flex-col items-center w-[90%] border border-black rounded-lg divide-y divide-black mb-4'>
                     {state.activeQuery.data.data.map(order => (
                         <OrderItem order={order} reloadOrder={state.activeQuery.refetch}/>
                     ))}

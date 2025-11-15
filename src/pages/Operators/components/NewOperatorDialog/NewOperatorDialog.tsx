@@ -3,6 +3,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/
 import { Input } from "@/components/ui/input.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { useNewOperatorDialog } from "./hooks/useNewOperatorDialog";
+import {PhoneInput} from "@/components/ui/input-phone.tsx";
 
 interface NewOperatorDialogProps {
     newOperator: NewOperatorDTO;
@@ -66,7 +67,10 @@ const NewOperatorDialog = ({ newOperator, reloadOperators, setIsOpen, isOpen }: 
                                             {"Номер телефона"}
                                         </FormLabel>
                                         <FormControl>
-                                            <Input placeholder="Номер телефона" {...field} />
+                                            <PhoneInput
+                                                {...field}
+                                                placeholder="Номер телефона"
+                                            />
                                         </FormControl>
                                         {fieldState.error && (
                                             <p className="text-red-600 text-xs mt-1">{fieldState.error.message}</p>

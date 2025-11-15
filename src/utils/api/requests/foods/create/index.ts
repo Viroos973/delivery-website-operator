@@ -3,8 +3,7 @@ import { instance } from '@/utils/api/instance';
 export type PostCreateDishParams = {
     name: string,
     categoryId: string,
-    photos?: string[],
-    rate: number,
+    photos?: File[],
     price: number,
     description: string,
     ingredients: string[]
@@ -12,5 +11,29 @@ export type PostCreateDishParams = {
 
 export type PostCreateDishConfig = RequestConfig<PostCreateDishParams>;
 
-export const postCreateDish = async ({ config, params }: PostCreateDishConfig) =>
-    instance.post<DetailDish>(`http://localhost:8080/api/foods`, params, config);
+export const postCreateDish = async ({ config, params }: PostCreateDishConfig) => {
+    const formData = new FormData();
+
+    formData.append('name', params.name);
+    formData.append('categoryId', params.categoryId);
+    formData.append('price', params.price.toString());
+    formData.append('description', params.description);
+
+    params.ingredients.forEach(ingredient => {
+        formData.append('ingredients', ingredient);
+    });
+
+    if (params.photos) {
+        params.photos.forEach(file => {
+            formData.append('photos', file);
+        });
+    }
+
+    return instance.post<DetailDish>(`http://localhost:8080/api/foods`, formData, {
+        ...config,
+        headers: {
+            ...config?.headers,
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+};
