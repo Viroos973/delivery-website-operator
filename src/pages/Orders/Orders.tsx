@@ -58,10 +58,10 @@ const Orders = () => {
                     </div>
                 </div>
             )}
-            {state.activeQuery.data && state.activeQuery.data?.data.length > 0 ? (
+            {state.activeQuery.data && state.activeQuery.data?.length > 0 ? (
                 <div
                     className='flex flex-col items-center w-[90%] border border-black rounded-lg divide-y divide-black mb-4'>
-                    {state.activeQuery.data.data.map(order => (
+                    {state.activeQuery.data.map(order => (
                         <OrderItem order={order} reloadOrder={state.activeQuery.refetch}/>
                     ))}
                 </div>

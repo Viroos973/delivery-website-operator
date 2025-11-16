@@ -6,7 +6,6 @@ export type PutUpdateDishParams = {
     categoryId: string,
     newPhotos?: File[],
     photosToDelete: string[],
-    existingPhotos: string[],
     price: number,
     description: string,
     ingredients: string[]
@@ -27,9 +26,6 @@ export const putUpdateDish = async ({ config, params }: PutUpdateDishConfig) => 
     });
     params.photosToDelete.forEach(photo => {
         formData.append('photosToDelete', photo);
-    });
-    params.existingPhotos.forEach(photo => {
-        formData.append('existingPhotos', photo);
     });
 
     if (params.newPhotos) {

@@ -104,7 +104,7 @@ export const useEditDishDialog = (setIsOpen: (isOpen: boolean) => void, reloadDi
         await editDish.mutateAsync({
             params: {
                 id: dishId, name: value.name, categoryId: value.categoryId,
-                newPhotos: selectedFile, photosToDelete: photosToDelete, existingPhotos: existingPhotos,
+                newPhotos: selectedFile, photosToDelete: photosToDelete,
                 price: value.price, description: value.description,
                 ingredients: value.ingredients
             }

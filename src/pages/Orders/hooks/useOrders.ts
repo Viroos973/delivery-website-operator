@@ -142,21 +142,44 @@ export const useOrders = () => {
 
     const activeQuery = useMemo(() => {
         if (isAdmin) {
-            return ordersWithFilters;
+            return {
+                data: ordersWithFilters.data?.data,
+                refetch: ordersWithFilters.refetch
+            };
+        } else if (!isAdmin && isMyOrder && isOrderWithoutOperator) {
+            const combinedData = [
+                ...(myOrders.data?.data || []),
+                ...(ordersWithoutOperator.data?.data || [])
+            ];
+
+            const uniqueData = combinedData.filter((order, index, self) =>
+                index === self.findIndex(o => o.reservation.id === order.reservation.id)
+            );
+
+            return {
+                data: uniqueData,
+                refetch: () => {
+                    myOrders.refetch();
+                    ordersWithoutOperator.refetch();
+                }
+            };
         } else if (!isAdmin && isMyOrder) {
-            return myOrders;
+            return {
+                data: myOrders.data?.data,
+                refetch: myOrders.refetch
+            };
         } else if (!isAdmin && isOrderWithoutOperator) {
-            return ordersWithoutOperator;
+            return {
+                data: ordersWithoutOperator.data?.data,
+                refetch: ordersWithoutOperator.refetch
+            };
         }
 
         return {
             data: undefined,
-            isLoading: false,
-            isError: false,
-            error: null,
             refetch: () => {}
         };
-    }, [isAdmin, isMyOrder, ordersWithFilters.data, myOrders.data, ordersWithoutOperator.data]);
+    }, [isAdmin, isMyOrder, isOrderWithoutOperator, ordersWithFilters, myOrders, ordersWithoutOperator]);
 
     const handleSelectStatus = (id: string) => {
         setFilters({...filters, statuses: id})
