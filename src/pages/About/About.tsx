@@ -10,7 +10,7 @@ const About = () => {
     return (
         <div className="flex flex-col mt-8 mb-8 gap-12 w-full px-16">
             <div className='flex flex-row justify-between items-center'>
-                <span className='text-4xl font-medium text-center flex-1'>О нас</span>
+                <span className='text-4xl font-medium text-center flex-1'>О НАС</span>
                 {state.authenticated && state.roles.includes('ADMIN') && (
                     <div>
                         <Button className="cursor-pointer" onClick={() => functions.setIsOpen(true)}>{"Редактировать"}</Button>
