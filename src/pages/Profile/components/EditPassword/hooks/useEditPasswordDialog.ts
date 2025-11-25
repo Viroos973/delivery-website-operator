@@ -3,7 +3,6 @@ import { editPasswordShema } from "../constants/EditPasswordShema"
 import { useEffect} from "react"
 import { zodResolver } from "@hookform/resolvers/zod";
 import { usePutEditPasswordMutation } from "@/utils/api/hooks/usePutEditPasswordMutation";
-import { Route } from "react-router-dom";
 
 
 export const useEditPasswordDialog = (
