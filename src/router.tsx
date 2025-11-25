@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import {createHashRouter} from "react-router-dom";
 import { ROUTES } from "./utils/constants/routes";
 import Root from "./pages/Root/Root";
 import About from "./pages/About/About";
@@ -11,7 +11,7 @@ import Statistics from "@/pages/Statistics/Statistics.tsx";
 import DishCategory from "@/pages/DishCategory/DishCategory.tsx";
 import OrderDetail from "./pages/OrderDetail/OrderDetail";
 
-export const router = createBrowserRouter([
+export const router = createHashRouter([
     {
         path: ROUTES.ROOT,
         element: <Root />,
