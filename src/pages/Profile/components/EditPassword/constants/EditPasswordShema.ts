@@ -29,7 +29,11 @@ export const editPasswordShema = z.object({
         message: 'Пароль должен содержать хотя бы одну цифру'
     }),
 }).refine(
-    (data) => data.newPassword1 == data.newPassword2,{message: "Пароли не совпадают", path: ["newPassword2"],}
+    (data) => data.newPassword1 == data.newPassword2,
+    {
+        message: "Пароли не совпадают", 
+        path: ["newPassword2"],
+    }
 ).refine(
     (data) => data.oldPassword1 !== data.newPassword1,
     {

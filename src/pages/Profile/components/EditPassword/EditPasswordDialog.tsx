@@ -31,7 +31,11 @@ const EditPasswordDialog  = ({setIsOpen, isOpen}: ChangePasswordDialogProps) => 
                       {"Старый пароль"}
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="Введите старый пароль" {...field} />
+                      <Input 
+                        placeholder="Введите старый пароль" 
+                        {...field} 
+                        type="password"
+                      />
                     </FormControl>
                     {fieldState.error && (
                       <p className="text-red-600 text-xs mt-1">{fieldState.error.message}</p>
@@ -48,7 +52,11 @@ const EditPasswordDialog  = ({setIsOpen, isOpen}: ChangePasswordDialogProps) => 
                       {"Новый пароль"}
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="Введите новый пароль" {...field} />
+                      <Input 
+                        placeholder="Введите новый пароль" 
+                        {...field} 
+                        type="password"
+                      />
                     </FormControl>
                     {fieldState.error && (
                       <p className="text-red-600 text-xs mt-1">{fieldState.error.message}</p>
@@ -65,7 +73,11 @@ const EditPasswordDialog  = ({setIsOpen, isOpen}: ChangePasswordDialogProps) => 
                       {"Подтверждение пароля"}
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="Повторите старый пароль" {...field} />
+                      <Input 
+                        placeholder="Повторите старый пароль" 
+                        {...field} 
+                        type="password"
+                      />
                     </FormControl>
                     {fieldState.error && (
                       <p className="text-red-600 text-xs mt-1">{fieldState.error.message}</p>
