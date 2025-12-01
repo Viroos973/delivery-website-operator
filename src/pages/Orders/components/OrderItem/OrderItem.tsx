@@ -73,15 +73,35 @@ const OrderItem: React.FC<OrderItemProps> = ({ order, reloadOrder }) => {
                             orderId={order.reservation.id}
                         />
                     ) : (
-                        <div className="flex items-center gap-2">
-                            <Button onClick={() => functions.changeStatus("CONFIRMED", order.reservation.id)}
-                                disabled={order.reservation.status === "CONFIRMED"}>
-                                {"Подтвердить"}
-                            </Button>
-                            <Button onClick={() => functions.changeStatus("CANCELED", order.reservation.id)}
-                                disabled={order.reservation.status === "CANCELED"}>
-                                {"Отменить"}
-                            </Button>
+                         <div>
+                            {order.reservation.operatorId === state.userId ? (
+                                <SelectStatus
+                                    selected={{ id: order.reservation.status, name: order.reservation.status }}
+                                    statuses={[
+                                        { id: "NEW", name: "Новый" },
+                                        { id: "CONFIRMED", name: "Подвтержден" },
+                                        { id: "COOKING", name: "Готовится" },
+                                        { id: "WAITING_FOR_COURIER", name: "Ожидает курьера" },
+                                        { id: "TOOK_BY_COURIER", name: "Передан курьеру" },
+                                        { id: "COMPLETED", name: "Доставлен" },
+                                        { id: "CANCELED", name: "Отменен" }
+                                    ]}
+                                    onChange={functions.changeStatus}
+                                    orderId={order.reservation.id}
+                                />
+                            ) : (
+                                < div className="flex items-center gap-2">
+                                    <Button onClick={() => functions.changeStatus("CONFIRMED", order.reservation.id)}
+                                        disabled={order.reservation.status === "CONFIRMED"}>
+                                        {"Подтвердить"}
+                                    </Button>
+                                    <Button onClick={() => functions.changeStatus("CANCELED", order.reservation.id)}
+                                        disabled={order.reservation.status === "CANCELED"}>
+                                        {"Отменить"}
+                                    </Button>
+                                </div>
+                            )
+                            }
                         </div>
                     )}
                     <ReasonDialog isReason={state.isReason} setIsReason={functions.setIsReason} order={order}
