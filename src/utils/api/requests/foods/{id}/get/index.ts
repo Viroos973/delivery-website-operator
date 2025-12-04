@@ -1,4 +1,5 @@
 import { instance } from '../../../../instance';
+import {MENU_API_URL} from "@/utils/constants/apiUrl.ts";
 
 export interface GetDishByIdParams {
     id: string;
@@ -7,4 +8,4 @@ export interface GetDishByIdParams {
 export type GetDishByIdConfig = RequestConfig<GetDishByIdParams>;
 
 export const getDishById = async ({ config, params }: GetDishByIdConfig) =>
-    instance.get<GetDetailDish>(`http://localhost:8080/api/foods/${params.id}`, config);
+    instance.get<GetDetailDish>(`${MENU_API_URL}/foods/${params.id}`, config);

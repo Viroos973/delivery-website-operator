@@ -1,4 +1,5 @@
 import { instance } from '@/utils/api/instance';
+import {MENU_API_URL} from "@/utils/constants/apiUrl.ts";
 
 export type PostCreateCategoryParams = {
     name: string,
@@ -8,4 +9,4 @@ export type PostCreateCategoryParams = {
 export type PostCreateCategoryConfig = RequestConfig<PostCreateCategoryParams>;
 
 export const postCreateCategory = async ({ config, params }: PostCreateCategoryConfig) =>
-    instance.post<Categories>(`http://localhost:8080/api/categories`, params, config);
+    instance.post<Categories>(`${MENU_API_URL}/categories`, params, config);

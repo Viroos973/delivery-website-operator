@@ -1,4 +1,5 @@
 import { instance } from '../../../../instance';
+import {USER_API_URL} from "@/utils/constants/apiUrl.ts";
 
 export interface DeleteOperatorByIdParams {
     operatorId: string;
@@ -7,4 +8,4 @@ export interface DeleteOperatorByIdParams {
 export type DeleteOperatorByIdConfig = RequestConfig<DeleteOperatorByIdParams>;
 
 export const deleteOperatorById = async ({ config, params }: DeleteOperatorByIdConfig) =>
-    instance.delete(`http://localhost:8910/api/users/operators/${params.operatorId}`, config);
+    instance.delete(`${USER_API_URL}/users/operators/${params.operatorId}`, config);

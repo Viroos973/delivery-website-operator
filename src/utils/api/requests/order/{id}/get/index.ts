@@ -1,4 +1,5 @@
 import { instance } from '../../../../instance';
+import {ORDER_API_URL} from "@/utils/constants/apiUrl.ts";
 
 export interface GetOrderByIdParams {
     orderId: string;
@@ -7,4 +8,4 @@ export interface GetOrderByIdParams {
 export type GetOrderByIdConfig = RequestConfig<GetOrderByIdParams>;
 
 export const getOrderById = async ({ config, params }: GetOrderByIdConfig) =>
-    instance.get<Order>(`http://localhost:8096/order/find-by/${params.orderId}`, config);
+    instance.get<Order>(`${ORDER_API_URL}/find-by/${params.orderId}`, config);

@@ -1,4 +1,5 @@
 import { instance } from '@/utils/api/instance';
+import {MENU_API_URL} from "@/utils/constants/apiUrl.ts";
 
 export interface GetFoodsWithFilterParams {
     includeIngredients?: string[],
@@ -14,4 +15,4 @@ export interface GetFoodsWithFilterParams {
 export type GetFoodsWithFilterConfig = RequestConfig<GetFoodsWithFilterParams>;
 
 export const getFoodsWithFilter = ({ params, config }: GetFoodsWithFilterConfig) =>
-    instance.post<Dish[]>('http://localhost:8080/api/foods/filter', params, config);
+    instance.post<Dish[]>(`${MENU_API_URL}/foods/filter`, params, config);

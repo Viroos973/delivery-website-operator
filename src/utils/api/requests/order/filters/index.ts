@@ -1,4 +1,5 @@
 import { instance } from '@/utils/api/instance';
+import {ORDER_API_URL} from "@/utils/constants/apiUrl.ts";
 
 export interface GetOrdersWithFiltersParams {
     operatorName?: string,
@@ -11,7 +12,7 @@ export interface GetOrdersWithFiltersParams {
 export type GetOrdersWithFiltersConfig = RequestConfig<GetOrdersWithFiltersParams>;
 
 export const getOrdersWithFilters = ({ params, config }: GetOrdersWithFiltersConfig) =>
-    instance.get<Order[]>(`http://localhost:8096/order/get-with-filters`, {
+    instance.get<Order[]>(`${ORDER_API_URL}/get-with-filters`, {
         ...config,
         params: { ...config?.params, ...params }
     });
