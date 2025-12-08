@@ -1,4 +1,5 @@
 import { instance } from '@/utils/api/instance';
+import {USER_API_URL} from "@/utils/constants/apiUrl.ts";
 
 export type PostCreateOperatorParams = {
     fullName: string,
@@ -10,4 +11,4 @@ export type PostCreateOperatorParams = {
 export type PostCreateOperatorConfig = RequestConfig<PostCreateOperatorParams>;
 
 export const postCreateOperator = async ({ config, params }: PostCreateOperatorConfig) =>
-    instance.post<Operator>(`http://localhost:8910/api/users/registration/operator`, params, config);
+    instance.post<Operator>(`${USER_API_URL}/users/registration/operator`, params, config);

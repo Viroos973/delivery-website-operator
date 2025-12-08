@@ -1,4 +1,5 @@
 import { instance } from '../../../../instance';
+import {MENU_API_URL} from "@/utils/constants/apiUrl.ts";
 
 export interface DeleteCategoryByIdParams {
     id: string;
@@ -7,4 +8,4 @@ export interface DeleteCategoryByIdParams {
 export type DeleteCategoryByIdConfig = RequestConfig<DeleteCategoryByIdParams>;
 
 export const deleteCategoryById = async ({ config, params }: DeleteCategoryByIdConfig) =>
-    instance.delete(`http://localhost:8080/api/categories/${params.id}`, config);
+    instance.delete(`${MENU_API_URL}/categories/${params.id}`, config);

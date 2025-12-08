@@ -1,4 +1,5 @@
 import { instance } from '../../../../instance';
+import {ORDER_API_URL} from "@/utils/constants/apiUrl.ts";
 
 export interface GetStatusHistoryParams {
     orderId: string;
@@ -7,7 +8,7 @@ export interface GetStatusHistoryParams {
 export type GetStatusHistoryConfig = RequestConfig<GetStatusHistoryParams>;
 
 export const getStatusHistory = async ({ config, params }: GetStatusHistoryConfig) =>
-    instance.get<StatusHistory[]>(`http://localhost:8096/order/get-status-history`, {
+    instance.get<StatusHistory[]>(`${ORDER_API_URL}/get-status-history`, {
         ...config,
         params: { ...config?.params, ...params }
     });

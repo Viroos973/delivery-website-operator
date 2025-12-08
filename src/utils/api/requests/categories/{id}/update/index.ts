@@ -1,4 +1,5 @@
 import { instance } from '../../../../instance';
+import {MENU_API_URL} from "@/utils/constants/apiUrl.ts";
 
 export type PutUpdateCategoryParams = {
     id: string;
@@ -9,4 +10,4 @@ export type PutUpdateCategoryParams = {
 export type PutUpdateCategoryConfig = RequestConfig<PutUpdateCategoryParams>;
 
 export const putUpdateCategory = async ({ config, params }: PutUpdateCategoryConfig) =>
-    instance.put<Categories>(`http://localhost:8080/api/categories/${params.id}`, params, config);
+    instance.put<Categories>(`${MENU_API_URL}/categories/${params.id}`, params, config);

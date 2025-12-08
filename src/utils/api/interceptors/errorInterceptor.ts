@@ -4,6 +4,7 @@ import {ValidationError} from "ajv";
 import {REFRESH_TOKEN, USER_TOKEN} from "../../constants/token";
 import {getRefreshToken} from "@/utils/helpers/getUserToken.ts";
 import {instance} from "@/utils/api/instance.ts";
+import {USER_API_URL} from "@/utils/constants/apiUrl.ts";
 
 interface ExtendedAxiosRequestConfig extends InternalAxiosRequestConfig {
     _retry?: boolean;
@@ -17,7 +18,7 @@ export const errorInterceptor = async (error: AxiosError<ValidationError>) => {
 
         try {
             const refresh = getRefreshToken();
-            const response = await instance.post('http://localhost:8910/api/auth/refresh',
+            const response = await instance.post(`${USER_API_URL}/auth/refresh`,
                 { refreshToken: refresh });
             const { accessToken, refreshToken } = response.data;
 
@@ -26,7 +27,7 @@ export const errorInterceptor = async (error: AxiosError<ValidationError>) => {
             instance.defaults.headers['Authorization'] = `Bearer ${accessToken}`;
 
             return instance(originalRequest);
-        } catch (e) {
+        } catch {
             localStorage.removeItem(USER_TOKEN);
             localStorage.removeItem(REFRESH_TOKEN);
             if (window.location.pathname !== '/') {

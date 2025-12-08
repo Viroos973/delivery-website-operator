@@ -1,4 +1,5 @@
 import { instance } from '@/utils/api/instance';
+import {USER_API_URL} from "@/utils/constants/apiUrl.ts";
 
 export type PostLoginOperatorParams = {
     username: string,
@@ -8,4 +9,4 @@ export type PostLoginOperatorParams = {
 export type PostLoginOperatorConfig = RequestConfig<PostLoginOperatorParams>;
 
 export const postLoginOperator = async ({ config, params }: PostLoginOperatorConfig) =>
-    instance.post<Token>(`http://localhost:8910/api/auth/staff/sign-in`, params, config);
+    instance.post<Token>(`${USER_API_URL}/auth/staff/sign-in`, params, config);

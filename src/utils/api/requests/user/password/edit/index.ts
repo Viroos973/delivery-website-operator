@@ -1,4 +1,5 @@
 import { instance } from '@/utils/api/instance';
+import {USER_API_URL} from "@/utils/constants/apiUrl.ts";
 
 export type PutEditPasswordParams = {
     password: string,
@@ -8,4 +9,4 @@ export type PutEditPasswordParams = {
 export type PutEditPasswordConfig = RequestConfig<PutEditPasswordParams>;
 
 export const putEditPassword = async ({ config, params }: PutEditPasswordConfig) =>
-    instance.put(`http://localhost:8910/api/users/password/change`, params, config);
+    instance.put(`${USER_API_URL}/users/password/change`, params, config);

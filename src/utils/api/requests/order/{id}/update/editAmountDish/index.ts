@@ -1,4 +1,5 @@
 import { instance } from "@/utils/api/instance";
+import {ORDER_API_URL} from "@/utils/constants/apiUrl.ts";
 
 export type PutEditAmountDishToOrderParams = {
     amount: number,
@@ -9,7 +10,7 @@ export type PutEditAmountDishToOrderParams = {
 export type PutEditAmountDishToOrderConfig = RequestConfig<PutEditAmountDishToOrderParams>;
 
 export const putEditAmountDishToOrder = async ({ config, params }: PutEditAmountDishToOrderConfig) =>
-    instance.put(`http://localhost:8096/order/change/quantity/${params.orderId}/${params.dishId}`, null, {
+    instance.put(`${ORDER_API_URL}/change/quantity/${params.orderId}/${params.dishId}`, null, {
         ...config,
         params: { ...config?.params, ...params }
     });

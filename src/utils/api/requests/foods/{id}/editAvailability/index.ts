@@ -1,4 +1,5 @@
 import { instance } from '../../../../instance';
+import {MENU_API_URL} from "@/utils/constants/apiUrl.ts";
 
 export type PatchUpdateAvailabilityDishParams = {
     id: string;
@@ -8,4 +9,4 @@ export type PatchUpdateAvailabilityDishParams = {
 export type PatchUpdateAvailabilityDishConfig = RequestConfig<PatchUpdateAvailabilityDishParams>;
 
 export const patchUpdateAvailabilityDish = async ({ config, params }: PatchUpdateAvailabilityDishConfig) =>
-    instance.patch<DetailDish>(`http://localhost:8080/api/foods/${params.id}/availability?available=${params.available}`, config);
+    instance.patch<DetailDish>(`${MENU_API_URL}/foods/${params.id}/availability?available=${params.available}`, config);

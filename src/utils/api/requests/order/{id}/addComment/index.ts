@@ -1,4 +1,5 @@
 import { instance } from '../../../../instance';
+import {ORDER_API_URL} from "@/utils/constants/apiUrl.ts";
 
 export type PutAddCommentParams = {
     orderId: string,
@@ -8,7 +9,7 @@ export type PutAddCommentParams = {
 export type PutAddCommentConfig = RequestConfig<PutAddCommentParams>;
 
 export const putAddComment = async ({ config, params }: PutAddCommentConfig) =>
-    instance.put(`http://localhost:8096/order/comment/${params.orderId}`, null, {
+    instance.put(`${ORDER_API_URL}/comment/${params.orderId}`, null, {
         ...config,
         params: { ...config?.params, ...params }
     });

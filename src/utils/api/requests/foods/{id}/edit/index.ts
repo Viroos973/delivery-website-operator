@@ -1,4 +1,5 @@
 import { instance } from '../../../../instance';
+import {MENU_API_URL} from "@/utils/constants/apiUrl.ts";
 
 export type PutUpdateDishParams = {
     id: string;
@@ -34,7 +35,7 @@ export const putUpdateDish = async ({ config, params }: PutUpdateDishConfig) => 
         });
     }
 
-    return instance.put<DetailDish>(`http://localhost:8080/api/foods/${params.id}`, formData, {
+    return instance.put<DetailDish>(`${MENU_API_URL}/foods/${params.id}`, formData, {
         ...config,
         headers: {
             ...config?.headers,

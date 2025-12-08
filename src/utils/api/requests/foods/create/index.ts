@@ -1,4 +1,5 @@
 import { instance } from '@/utils/api/instance';
+import {MENU_API_URL} from "@/utils/constants/apiUrl.ts";
 
 export type PostCreateDishParams = {
     name: string,
@@ -29,7 +30,7 @@ export const postCreateDish = async ({ config, params }: PostCreateDishConfig) =
         });
     }
 
-    return instance.post<DetailDish>(`http://localhost:8080/api/foods`, formData, {
+    return instance.post<DetailDish>(`${MENU_API_URL}/foods`, formData, {
         ...config,
         headers: {
             ...config?.headers,
