@@ -17,7 +17,7 @@ const OrderItem: React.FC<OrderItemProps> = ({ order, reloadOrder }) => {
     const { state, functions } = useOrderItem(reloadOrder)
 
     return (
-        <div className="flex flex-col w-[100%] p-10 gap-6">
+        <div className="flex flex-col w-[100%] p-10 gap-6 order-item">
             <div className="flex flex-row justify-between">
                 <div className="flex flex-row gap-4 ">
                     <NavLink to={`/order/${order.reservation.id}`} className="cursor-pointer">
