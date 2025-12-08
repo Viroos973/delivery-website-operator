@@ -56,7 +56,7 @@ const OrderItem: React.FC<OrderItemProps> = ({ order, reloadOrder }) => {
                         </div>
                     </div>
                 </div>
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-4 select-change-status">
                     {state.authenticated && state.roles.includes('ADMIN') ? (
                         <SelectStatus
                             selected={{ id: order.reservation.status, name: order.reservation.status }}
