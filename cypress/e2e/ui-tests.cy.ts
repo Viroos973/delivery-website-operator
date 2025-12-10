@@ -6,9 +6,27 @@ describe('UI-tests', () => {
         cy.viewport(1280, 768);
     });
 
+    describe(`Проверка входа при пустых полях`, () => {
+        it('Выдает предупреждение', () => {
+            cy.get('.cursor-pointer').contains('Войти').click();
+
+            // Авторизация
+            cy.get('[role="dialog"]').contains('Войти').click();
+
+            // Проверка на наличие предупреждения
+            cy.get('[data-slot="form-message"]')
+                .should('be.visible')
+                .and('contain.text', 'Поле должно быть заполнено');
+        });
+    });
+
     const testLoginData = [
         {
             email: 'test@operator1',
+            password: 'password123'
+        },
+        {
+            email: 'admin@test',
             password: 'password123'
         }
     ];
