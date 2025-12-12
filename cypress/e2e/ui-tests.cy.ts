@@ -153,6 +153,8 @@ describe('UI-tests', () => {
             cy.get('[role="dialog"]').should('be.visible');
             //Ввод данных в форму
             cy.get('input[placeholder="Комментарий к заказу"]').type("Комментарий к заказу");
+            //Добавление комментария к заказу
+            cy.get('[role="dialog"]').contains('Сохранить').click();
             //Проверяем, что модальное окно исчезло
             cy.get('[role="dialog"]').should('not.exist');
 
@@ -162,6 +164,48 @@ describe('UI-tests', () => {
                     message: "Comment added successfully"
                 });
             });
+        })
+    })
+
+    describe(`Проверка добавления пустого комментария к заказу`, () => {
+        it('Выдает предупреждение', () => {
+            cy.intercept('PUT', '**/order/comment/**').as('addCommentRequest');
+
+            cy.get('button.cursor-pointer').contains('Войти').click();
+
+            // Проверяем, что модальное окно открылось
+            cy.get('[role="dialog"]').should('be.visible');
+
+            // Ввод данных в форму
+            cy.get('input[placeholder="Введите логин оператора"]').type("test@operator1");
+            cy.get('input[placeholder="Введите пароль"]').type("password123");
+
+            // Авторизация
+            cy.get('[role="dialog"]').contains('Войти').click();
+
+            // Проверяем, что модальное окно исчезло
+            cy.get('[role="dialog"]').should('not.exist');
+
+            cy.get('a[href="#/orders"]').click();
+
+            cy.get('div.order-item', { timeout: 3000 })
+                .should('have.length.greaterThan', 0)
+                .first().as('firstOrder');
+
+            cy.get('@firstOrder')
+                .within(() => {
+                    //кликаем на иконку комментария
+                    cy.get('.add-comment').click();
+                })
+
+            //Проверяем, что модальное окно открылось
+            cy.get('[role="dialog"]').should('be.visible');
+            //Добавление комментария к заказу
+            cy.get('[role="dialog"]').contains('Сохранить').click();
+            // Проверка на наличие предупреждения
+            cy.get('[data-slot="form-message"]')
+                .should('be.visible')
+                .and('contain.text', 'Это поле обязательно');
         })
     })
 
