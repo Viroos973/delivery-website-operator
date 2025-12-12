@@ -26,7 +26,7 @@ const OrderItem: React.FC<OrderItemProps> = ({ order, reloadOrder }) => {
                         </span>
                     </NavLink>
                     {state.authenticated && state.roles.includes('OPERATOR') ? (
-                        <MessageSquare className=" flex items-end h-[60%] cursor-pointer"
+                        <MessageSquare className=" flex items-end h-[60%] cursor-pointer add-comment"
                             onClick={() => functions.setIsComment(true)} />
                     ) : null}
                     <CommentDialog isComment={state.isComment} setIsComment={functions.setIsComment} order={order} />
