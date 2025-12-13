@@ -169,8 +169,6 @@ describe('UI-tests', () => {
 
     describe(`Проверка добавления пустого комментария к заказу`, () => {
         it('Выдает предупреждение', () => {
-            cy.intercept('PUT', '**/order/comment/**').as('addCommentRequest');
-
             cy.get('button.cursor-pointer').contains('Войти').click();
 
             // Проверяем, что модальное окно открылось
@@ -219,7 +217,7 @@ describe('UI-tests', () => {
             cy.get('[role="dialog"]').should('be.visible');
 
             // Ввод данных в форму
-            cy.get('input[placeholder="Введите логин оператора"]').type("admin@test");
+            cy.get('input[placeholder="Введите логин оператора"]').type("test@operator1");
             cy.get('input[placeholder="Введите пароль"]').type("password123");
 
             // Авторизация
@@ -251,5 +249,225 @@ describe('UI-tests', () => {
                 });
             });
         });
+    })
+
+    describe(`Редактирование информации о компании`, () => {
+        it('Редактирование информации о компании', () => {
+            cy.intercept('PUT', '**/api/about/**').as('editAboutRequest');
+
+            cy.get('button.cursor-pointer').contains('Войти').click();
+
+            // Проверяем, что модальное окно открылось
+            cy.get('[role="dialog"]').should('be.visible');
+
+            // Ввод данных в форму
+            cy.get('input[placeholder="Введите логин оператора"]').type("admin@test");
+            cy.get('input[placeholder="Введите пароль"]').type("password123");
+
+            // Авторизация
+            cy.get('[role="dialog"]').contains('Войти').click();
+
+            // Проверяем, что модальное окно исчезло
+            cy.get('[role="dialog"]').should('not.exist');
+
+            cy.get('a[href="#/about"]').click();
+
+            // Кликаем на кнопку редактирования
+            cy.get('button.cursor-pointer').contains('Редактировать').click();
+
+            // Проверяем, что модальное окно открылось
+            cy.get('[role="dialog"]').should('be.visible');
+
+            // Ввод данных в форму
+            cy.get('input[placeholder="Наименование компании"]').type("HITs Delivery service");
+            cy.get('input[placeholder="Почтовый адрес"]').type("Пр. Ленина");
+            cy.get('input[placeholder="Email для связи"]').type("delivery@list.ru");
+            cy.get('input[placeholder="Телефон менеджера"]').type("+79547856512");
+            cy.get('input[placeholder="Телефон оператора"]').type("89134587596");
+
+            // Редактирование данных
+            cy.get('[role="dialog"]').contains('Сохранить').click();
+
+            // Проверяем, что модальное окно исчезло
+            cy.get('[role="dialog"]').should('not.exist');
+
+            cy.wait('@editAboutRequest').then((interception: Interception) => {
+                // Проверяем тело запроса
+                expect(interception.response?.body).to.exist;
+            });
+        });
+    })
+
+    describe(`Отмена редактирования информации о компании`, () => {
+        it('Отмена редактирования информации о компании', () => {
+            cy.get('button.cursor-pointer').contains('Войти').click();
+
+            // Проверяем, что модальное окно открылось
+            cy.get('[role="dialog"]').should('be.visible');
+
+            // Ввод данных в форму
+            cy.get('input[placeholder="Введите логин оператора"]').type("admin@test");
+            cy.get('input[placeholder="Введите пароль"]').type("password123");
+
+            // Авторизация
+            cy.get('[role="dialog"]').contains('Войти').click();
+
+            // Проверяем, что модальное окно исчезло
+            cy.get('[role="dialog"]').should('not.exist');
+
+            cy.get('a[href="#/about"]').click();
+
+            // Кликаем на кнопку редактирования
+            cy.get('button.cursor-pointer').contains('Редактировать').click();
+
+            // Проверяем, что модальное окно открылось
+            cy.get('[role="dialog"]').should('be.visible');
+
+            // Сохраняем изначальные данные
+            let originalData = {
+                companyName: '',
+                mailAddress: '',
+                contactEmail: '',
+                managerPhone: '',
+                operatorPhone: ''
+            };
+
+            cy.get('input[placeholder="Наименование компании"]')
+                .invoke('val')
+                .then(val => { originalData.companyName = val; });
+            cy.get('input[placeholder="Почтовый адрес"]')
+                .invoke('val')
+                .then(val => { originalData.mailAddress = val; });
+            cy.get('input[placeholder="Email для связи"]')
+                .invoke('val')
+                .then(val => { originalData.contactEmail = val; });
+            cy.get('input[placeholder="Телефон менеджера"]')
+                .invoke('val')
+                .then(val => { originalData.managerPhone = val; });
+            cy.get('input[placeholder="Телефон оператора"]')
+                .invoke('val')
+                .then(val => { originalData.operatorPhone = val; });
+
+            // Ввод новых данных в форму
+            cy.get('input[placeholder="Наименование компании"]').type("HITs Delivery service");
+            cy.get('input[placeholder="Почтовый адрес"]').type("Пр. Ленина");
+            cy.get('input[placeholder="Email для связи"]').type("delivery@list.ru");
+            cy.get('input[placeholder="Телефон менеджера"]').type("+79547856512");
+            cy.get('input[placeholder="Телефон оператора"]').type("89134587596");
+
+            // Отмена редактирования данных
+            cy.get('[role="dialog"]').contains('Отмена').click();
+
+            // Проверяем, что модальное окно исчезло
+            cy.get('[role="dialog"]').should('not.exist');
+
+            // Проверяем, что данные на странице не изменились 
+            cy.get('.name-company').should('contain.text', originalData.companyName);
+            cy.get('[data-testid="about-item-Почтовый адрес:"]').should('contain.text', originalData.mailAddress);
+            cy.get('[data-testid="about-item-Email для связи:"]').should('contain.text', originalData.contactEmail);
+            cy.get('[data-testid="about-item-Телефон менеджера:"]').should('contain.text', originalData.managerPhone);
+            cy.get('[data-testid="about-item-Телефон оператора:"]').should('contain.text', originalData.operatorPhone);
+        });
+    })
+
+    const testEditAboutData = [
+        {
+            companyName: '',
+            mailAddress: '',
+            contactEmail: '',
+            managerPhone: '',
+            operatorPhone: ''
+        },
+        {
+            companyName: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+            mailAddress: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+            contactEmail: 'emailv@ru',
+            managerPhone: '78984',
+            operatorPhone: '7895142348452'
+        },
+        {
+            companyName: 'a',
+            mailAddress: 'a',
+            contactEmail: 'email',
+            managerPhone: '7898435353535355',
+            operatorPhone: '78951422'
+        }
+    ];
+    describe(`Проверка валидаци при редактировании информации о компании`, () => {
+        testEditAboutData.forEach(({ companyName, mailAddress, contactEmail, managerPhone, operatorPhone }) => {
+            it('Выдает предупреждения', () => {
+                cy.get('button.cursor-pointer').contains('Войти').click();
+
+                // Проверяем, что модальное окно открылось
+                cy.get('[role="dialog"]').should('be.visible');
+
+                // Ввод данных в форму
+                cy.get('input[placeholder="Введите логин оператора"]').type("admin@test");
+                cy.get('input[placeholder="Введите пароль"]').type("password123");
+
+                // Авторизация
+                cy.get('[role="dialog"]').contains('Войти').click();
+
+                // Проверяем, что модальное окно исчезло
+                cy.get('[role="dialog"]').should('not.exist');
+
+                cy.get('a[href="#/about"]').click();
+
+                // Кликаем на кнопку редактирования
+                cy.get('button.cursor-pointer').contains('Редактировать').click();
+
+                // Проверяем, что модальное окно открылось
+                cy.get('[role="dialog"]').should('be.visible');
+
+                // Ввод данных в форму
+                cy.get('input[placeholder="Наименование компании"]').type(companyName);
+                cy.get('input[placeholder="Почтовый адрес"]').type(mailAddress);
+                cy.get('input[placeholder="Email для связи"]').type(contactEmail);
+                cy.get('input[placeholder="Телефон менеджера"]').type(managerPhone);
+                cy.get('input[placeholder="Телефон оператора"]').type(operatorPhone);
+
+                // Редактирование данных
+                cy.get('[role="dialog"]').contains('Сохранить').click();
+
+                // Массив полей и сообщений
+                const validationFields = [
+                    {
+                        selector: 'input[placeholder="Наименование компании"]',
+                        message: [
+                            'Минимум 2 символа',
+                            'Максимум 50 символов'
+                        ]
+                    },
+                    {
+                        selector: 'input[placeholder="Почтовый адрес"]',
+                        message: [
+                            'Минимум 2 символа',
+                            'Максимум 50 символов'
+                        ]
+                    },
+                    {
+                        selector: 'input[placeholder="Email для связи"]',
+                        message: 'Введите корректный email'
+                    },
+                    {
+                        selector: 'input[placeholder="Телефон менеджера"]',
+                        message: 'Введите корректный телефон менеджера'
+                    },
+                    {
+                        selector: 'input[placeholder="Телефон оператора"]',
+                        message: 'Введите корректный телефон оператора'
+                    }
+                ];
+
+                // Проверка на наличие предупреждений
+                validationFields.forEach(field => {
+                    cy.get(field.selector)
+                        .parent()
+                        .find('[data-slot="form-message"]')
+                        .should('be.visible')
+                        .and('contain.text', field.message);
+                });
+            });
+        })
     })
 })
