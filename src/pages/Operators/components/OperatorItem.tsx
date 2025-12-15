@@ -11,7 +11,7 @@ const OperatorItem: React.FC<OperatorItemProps> = ({ operator }) => {
     const { functions } = useOperators();
 
     return (
-        <div className="flex flex-col w-[100%] p-10 gap-3">
+        <div className="flex flex-col w-[100%] p-10 gap-3 operator-item">
             <div className="flex flex-row justify-between">
                 <span className="text-2xl font-medium">{operator.fullName}</span>
                 <Button className="cursor-pointer" onClick={() => functions.handleDeleteOperator(operator.id)}>

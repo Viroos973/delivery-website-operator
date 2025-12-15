@@ -470,4 +470,182 @@ describe('UI-tests', () => {
             });
         })
     })
+
+    const testAddNewOperatorData = [
+        {
+            fullName: '',
+            password: '',
+            phone: '',
+            username: ''
+        },
+        {
+            fullName: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' +
+                'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' +
+                'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+            password: 'abc=def',
+            phone: '78984',
+            username: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+        },
+        {
+            fullName: 'aa',
+            password: 'abcdef1234567890!?#$%',
+            phone: '7898435353535355',
+            username: 'a'
+        }
+    ];
+    describe(`Проверка валидаци при добавлении нового оператора`, () => {
+        testAddNewOperatorData.forEach(({ fullName, password, phone, username }) => {
+            it('Выдает предупреждения', () => {
+                cy.get('button.cursor-pointer').contains('Войти').click();
+
+                // Проверяем, что модальное окно открылось
+                cy.get('[role="dialog"]').should('be.visible');
+
+                // Ввод данных в форму
+                cy.get('input[placeholder="Введите логин оператора"]').type("admin@test");
+                cy.get('input[placeholder="Введите пароль"]').type("password123");
+
+                // Авторизация
+                cy.get('[role="dialog"]').contains('Войти').click();
+
+                // Проверяем, что модальное окно исчезло
+                cy.get('[role="dialog"]').should('not.exist');
+
+                cy.get('a[href="#/operators"]').click();
+
+                // Кликаем на кнопку добавления
+                cy.get('.add-operator').click();
+
+                // Проверяем, что модальное окно открылось
+                cy.get('[role="dialog"]').should('be.visible');
+
+                // Ввод данных в форму
+                cy.get('input[placeholder="ФИО"]').type(fullName);
+                cy.get('input[placeholder="Пароль"]').type(password);
+                cy.get('input[placeholder="Номер телефона"]').type(phone);
+                cy.get('input[placeholder="Логин"]').type(username);
+
+                // Сохранение данных
+                cy.get('[role="dialog"]').contains('Создать').click();
+
+                // Массив полей и сообщений
+                const validationFields = [
+                    {
+                        selector: 'input[placeholder="ФИО"]',
+                        message: [
+                            'Минимум 3 символа',
+                            'Максимум 255 символов'
+                        ]
+                    },
+                    {
+                        selector: 'input[placeholder="Пароль"]',
+                        message: 'Введите корректный пароль'
+                    },
+                    {
+                        selector: 'input[placeholder="Номер телефона"]',
+                        message: 'Введите корректный номер телефона'
+                    },
+                    {
+                        selector: 'input[placeholder="Логин"]',
+                        message: [
+                            'Минимум 3 символа',
+                            'Максимум 100 символов'
+                        ]
+                    }
+                ];
+
+                // Проверка на наличие предупреждений
+                validationFields.forEach(field => {
+                    cy.get(field.selector)
+                        .parent()
+                        .find('[data-slot="form-message"]')
+                        .should('be.visible')
+                        .and('contain.text', field.message);
+                });
+            });
+        })
+    })
+
+    describe(`Добавление нового оператора`, () => {
+        it('Добавление нового оператора', () => {
+            cy.intercept('POST', '**/api/users/registration/operator/**').as('addNewOperatorRequest');
+
+            cy.get('button.cursor-pointer').contains('Войти').click();
+
+            // Проверяем, что модальное окно открылось
+            cy.get('[role="dialog"]').should('be.visible');
+
+            // Ввод данных в форму
+            cy.get('input[placeholder="Введите логин оператора"]').type("admin@test");
+            cy.get('input[placeholder="Введите пароль"]').type("password123");
+
+            // Авторизация
+            cy.get('[role="dialog"]').contains('Войти').click();
+
+            // Проверяем, что модальное окно исчезло
+            cy.get('[role="dialog"]').should('not.exist');
+
+            cy.get('a[href="#/operators"]').click();
+
+            cy.get('.add-operator').click();
+
+            // Проверяем, что модальное окно открылось
+            cy.get('[role="dialog"]').should('be.visible');
+
+            // Ввод данных в форму
+            cy.get('input[placeholder="ФИО"]').type('Иванов Иван Иванович');
+            cy.get('input[placeholder="Пароль"]').type('abcde12345');
+            cy.get('input[placeholder="Номер телефона"]').type('89138527548');
+            cy.get('input[placeholder="Логин"]').type('login');
+
+            // Сохранение данных
+            cy.get('[role="dialog"]').contains('Создать').click();
+
+            //Проверяем, что модальное окно исчезло
+            cy.get('[role="dialog"]').should('not.exist');
+
+            cy.wait('@addNewOperatorRequest').then((interception: Interception) => {
+                // Проверяем тело запроса
+                expect(interception.response?.body).to.exist;
+            });
+        })
+    })
+
+    describe(`Удаление оператора`, () => {
+        it('Удаление оператора', () => {
+            cy.intercept('DELETE', '**/api/users/operators/**').as('deleteOperatorRequest');
+
+            cy.get('button.cursor-pointer').contains('Войти').click();
+
+            // Проверяем, что модальное окно открылось
+            cy.get('[role="dialog"]').should('be.visible');
+
+            // Ввод данных в форму
+            cy.get('input[placeholder="Введите логин оператора"]').type("admin@test");
+            cy.get('input[placeholder="Введите пароль"]').type("password123");
+
+            // Авторизация
+            cy.get('[role="dialog"]').contains('Войти').click();
+
+            // Проверяем, что модальное окно исчезло
+            cy.get('[role="dialog"]').should('not.exist');
+
+            cy.get('a[href="#/operators"]').click();
+
+            cy.get('div.operator-item', { timeout: 3000 })
+                .should('have.length.greaterThan', 0)
+                .first().as('firstOperator');
+
+            cy.get('@firstOperator')
+                .within(() => {
+                    // Кликаем на кнопку удаления оператора
+                    cy.get('button.cursor-pointer').contains('Удалить аккаунт оператора').click();
+                })
+
+            cy.wait('@deleteOperatorRequest').then((interception: Interception) => {
+                // Проверяем тело запроса
+                expect(interception.response?.body).to.exist;
+            });
+        })
+    })
 })
