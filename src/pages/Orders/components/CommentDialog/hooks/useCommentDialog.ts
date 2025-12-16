@@ -1,13 +1,15 @@
 import { useForm } from "react-hook-form";
-import type { GetCommentSchema } from "../constants/CommentShema";
+import {commentSchema, type GetCommentSchema} from "../constants/CommentShema";
 import { useEffect } from "react";
 import { usePutAddCommentMutation } from "@/utils/api/hooks/usePutAddCommentMutation";
+import {zodResolver} from "@hookform/resolvers/zod";
 
 export const useCommentDialog = (isComment: boolean,
     setIsComment: (isComment: boolean) => void, order: Order) => {
     const addComment = usePutAddCommentMutation()
 
     const newCommentForm = useForm<GetCommentSchema>({
+        resolver: zodResolver(commentSchema),
         defaultValues: {
             comment: ''
         }

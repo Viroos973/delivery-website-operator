@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "build-and-preview": "npm run build && npm run preview -- --host 0.0.0.0 --port 4175",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist -t"
   },

@@ -10,7 +10,7 @@ const AboutItem: React.FC<AboutItemProps> = ({ icon, aboutItem, title }) => {
             {icon}
             <div className="flex flex-col gap-2">
                 <span className="text-lg font-medium">{title}</span>
-                <span className="text-lg font-normal">{aboutItem}</span>
+                <span className="text-lg font-normal" data-testid={`about-item-${title}`}>{aboutItem}</span>
             </div>
         </div>
     )

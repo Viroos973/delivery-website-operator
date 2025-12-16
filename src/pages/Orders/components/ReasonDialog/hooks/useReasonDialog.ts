@@ -1,7 +1,8 @@
 import { useForm } from "react-hook-form";
 import { useEffect } from "react";
-import type { GetReasonSchema } from "../constants/ReasonShema";
+import {type GetReasonSchema, reasonSchema} from "../constants/ReasonShema";
 import { usePutDeclineOrderMutation } from "@/utils/api/hooks/usePutDeclineOrderMutation";
+import {zodResolver} from "@hookform/resolvers/zod";
 
 export const useReasonDialog = (isReason: boolean,
     setIsReason: (isReason: boolean) => void, order: Order,
@@ -9,6 +10,7 @@ export const useReasonDialog = (isReason: boolean,
     const declineOrder = usePutDeclineOrderMutation()
 
     const newReasonForm = useForm<GetReasonSchema>({
+        resolver: zodResolver(reasonSchema),
         defaultValues: {
             reason: ''
         }

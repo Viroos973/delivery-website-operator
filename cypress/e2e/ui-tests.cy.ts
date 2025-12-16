@@ -1,4 +1,4 @@
-import type {Interception} from 'cypress/types/net-stubbing';
+import type { Interception } from 'cypress/types/net-stubbing';
 
 describe('UI-tests', () => {
     beforeEach(() => {
@@ -53,6 +53,8 @@ describe('UI-tests', () => {
 
     describe(`Смена статуса у заказа`, () => {
         it('Смена статуса у заказа', () => {
+            let selectStatus = 'Новый';
+
             cy.intercept('PUT', '**/order/change-order-status/**').as('statusChangeRequest');
 
             cy.get('button.cursor-pointer').contains('Войти').click();
@@ -80,40 +82,582 @@ describe('UI-tests', () => {
                 .within(() => {
                     //кликаем на селект
                     cy.get('.select-change-status').click();
+                    cy.get('.select-change-status').invoke('text').then((text: string) => text.trim()).as('orderStatus');
                 })
 
-            //проверяем,что открылся
-            cy.get('[data-slot="select-content"]', { timeout: 5000 }).should('be.visible');
-            //тыкаем на нужный статус
-            cy.get('.select-item-CONFIRMED').click({ force: true });
-            //проверяем, что селект закрылся
-            cy.get('[data-slot="select-content"]', { timeout: 5000 }).should('not.exist');
+            cy.get('@orderStatus').then((status: string) => {
+                //проверяем,что открылся
+                cy.get('[data-slot="select-content"]', { timeout: 5000 }).should('be.visible');
 
-            cy.wait('@statusChangeRequest').then((interception: Interception) => {
-                // Проверяем тело запроса
-                expect(interception.response?.body).to.deep.equal({
-                    message: "Order status updated successfully"
+                //тыкаем на нужный статус
+                if (status === 'Новый') {
+                    cy.get('.select-item-CONFIRMED').click({ force: true });
+                } else {
+                    cy.get('.select-item-NEW').click({ force: true });
+                }
+
+                //проверяем, что селект закрылся
+                cy.get('[data-slot="select-content"]', { timeout: 5000 }).should('not.exist');
+
+                cy.wait('@statusChangeRequest').then((interception: Interception) => {
+                    // Проверяем тело запроса
+                    expect(interception.response?.body).to.deep.equal({
+                        message: "Order status updated successfully"
+                    });
                 });
-            });
+            })
+        })
+    })
+
+    describe(`Добавление комментария к заказу`, () => {
+        it('Добавление комментария к заказу', () => {
+            cy.intercept('PUT', '**/order/comment/**').as('addCommentRequest');
+
+            cy.get('button.cursor-pointer').contains('Войти').click();
+
+            // Проверяем, что модальное окно открылось
+            cy.get('[role="dialog"]').should('be.visible');
+
+            // Ввод данных в форму
+            cy.get('input[placeholder="Введите логин оператора"]').type("test@operator1");
+            cy.get('input[placeholder="Введите пароль"]').type("password123");
+
+            // Авторизация
+            cy.get('[role="dialog"]').contains('Войти').click();
+
+            // Проверяем, что модальное окно исчезло
+            cy.get('[role="dialog"]').should('not.exist');
+
+            cy.get('a[href="#/orders"]').click();
+
+            cy.get('div.order-item', { timeout: 3000 })
+                .should('have.length.greaterThan', 0)
+                .first().as('firstOrder');
 
             cy.get('@firstOrder')
                 .within(() => {
-                    //кликаем на селект
-                    cy.get('.select-change-status').click();
+                    //кликаем на иконку комментария
+                    cy.get('.add-comment').click();
                 })
 
-            //проверяем,что открылся
-            cy.get('[data-slot="select-content"]', { timeout: 5000 }).should('be.visible');
-            //тыкаем на нужный статус
-            cy.get('.select-item-NEW').click({ force: true });
-            //проверяем, что селект закрылся
-            cy.get('[data-slot="select-content"]', { timeout: 5000 }).should('not.exist');
+            //Проверяем, что модальное окно открылось
+            cy.get('[role="dialog"]').should('be.visible');
+            //Ввод данных в форму
+            cy.get('input[placeholder="Комментарий к заказу"]').type("Комментарий к заказу");
+            //Добавление комментария к заказу
+            cy.get('[role="dialog"]').contains('Сохранить').click();
+            //Проверяем, что модальное окно исчезло
+            cy.get('[role="dialog"]').should('not.exist');
 
-            cy.wait('@statusChangeRequest').then((interception: Interception) => {
+            cy.wait('@addCommentRequest').then((interception: Interception) => {
                 // Проверяем тело запроса
                 expect(interception.response?.body).to.deep.equal({
-                    message: "Order status updated successfully"
+                    message: "Comment added successfully"
                 });
+            });
+        })
+    })
+
+    describe(`Проверка добавления пустого комментария к заказу`, () => {
+        it('Выдает предупреждение', () => {
+            cy.get('button.cursor-pointer').contains('Войти').click();
+
+            // Проверяем, что модальное окно открылось
+            cy.get('[role="dialog"]').should('be.visible');
+
+            // Ввод данных в форму
+            cy.get('input[placeholder="Введите логин оператора"]').type("test@operator1");
+            cy.get('input[placeholder="Введите пароль"]').type("password123");
+
+            // Авторизация
+            cy.get('[role="dialog"]').contains('Войти').click();
+
+            // Проверяем, что модальное окно исчезло
+            cy.get('[role="dialog"]').should('not.exist');
+
+            cy.get('a[href="#/orders"]').click();
+
+            cy.get('div.order-item', { timeout: 3000 })
+                .should('have.length.greaterThan', 0)
+                .first().as('firstOrder');
+
+            cy.get('@firstOrder')
+                .within(() => {
+                    //кликаем на иконку комментария
+                    cy.get('.add-comment').click();
+                })
+
+            //Проверяем, что модальное окно открылось
+            cy.get('[role="dialog"]').should('be.visible');
+            //Добавление комментария к заказу
+            cy.get('[role="dialog"]').contains('Сохранить').click();
+            // Проверка на наличие предупреждения
+            cy.get('[data-slot="form-message"]')
+                .should('be.visible')
+                .and('contain.text', 'Это поле обязательно');
+        })
+    })
+
+    describe(`Назначение себя оператором`, () => {
+        it('Назначение себя оператором', () => {
+            cy.intercept('PUT', '**/order/change-operator-for-order**').as('appointOperatorRequest');
+
+            cy.get('button.cursor-pointer').contains('Войти').click();
+
+            // Проверяем, что модальное окно открылось
+            cy.get('[role="dialog"]').should('be.visible');
+
+            // Ввод данных в форму
+            cy.get('input[placeholder="Введите логин оператора"]').type("test@operator1");
+            cy.get('input[placeholder="Введите пароль"]').type("password123");
+
+            // Авторизация
+            cy.get('[role="dialog"]').contains('Войти').click();
+
+            // Проверяем, что модальное окно исчезло
+            cy.get('[role="dialog"]').should('not.exist');
+
+            cy.get('a[href="#/orders"]').click();
+
+            cy.get('div.order-item', { timeout: 3000 }).each(($el, index) => {
+                // Проверяем, есть ли внутри элемента кнопка с нужным текстом
+                const $btn = $el.find('button.cursor-pointer:contains("Назначить себя оператором")');
+
+                // Если кнопка не найдена, переходим к следующему элементу
+                if ($btn.length === 0) {
+                    cy.log(`Элемент ${index} не содержит нужную кнопку, пропускаем`);
+                } else {
+                    // Если кнопка найдена, выполняем действия
+                    cy.wrap($btn)
+                        .should('be.visible')
+                        .click();
+
+                    // Ожидаем запроса
+                    cy.wait('@appointOperatorRequest').then((interception: Interception) => {
+                        expect(interception.response?.body).to.deep.equal({
+                            message: "Operator changed successfully"
+                        });
+                    });
+
+                    // Прерываем цикл после успешного выполнения
+                    return false;
+                }
+            });
+        });
+    })
+
+    describe(`Редактирование информации о компании`, () => {
+        it('Редактирование информации о компании', () => {
+            cy.intercept('PUT', '**/api/about').as('editAboutRequest');
+
+            cy.get('button.cursor-pointer').contains('Войти').click();
+
+            // Проверяем, что модальное окно открылось
+            cy.get('[role="dialog"]').should('be.visible');
+
+            // Ввод данных в форму
+            cy.get('input[placeholder="Введите логин оператора"]').type("admin@test");
+            cy.get('input[placeholder="Введите пароль"]').type("password123");
+
+            // Авторизация
+            cy.get('[role="dialog"]').contains('Войти').click();
+
+            // Проверяем, что модальное окно исчезло
+            cy.get('[role="dialog"]').should('not.exist');
+
+            // Кликаем на кнопку редактирования
+            cy.get('button.cursor-pointer').contains('Редактировать').click();
+
+            // Проверяем, что модальное окно открылось
+            cy.get('[role="dialog"]').should('be.visible');
+
+            // Ввод данных в форму
+            cy.get('input[placeholder="Наименование компании"]').clear().type("HITs Delivery service");
+            cy.get('input[placeholder="Почтовый адрес"]').clear().type("Пр. Ленина");
+            cy.get('input[placeholder="Email для связи"]').clear().type("delivery@list.ru");
+            cy.get('input[placeholder="Телефон менеджера"]').clear().type("+79547856512");
+            cy.get('input[placeholder="Телефон оператора"]').clear().type("89134587596");
+
+            // Редактирование данных
+            cy.get('[role="dialog"]').contains('Сохранить').click();
+
+            // Проверяем, что модальное окно исчезло
+            cy.get('[role="dialog"]').should('not.exist');
+
+            cy.wait('@editAboutRequest').then((interception: Interception) => {
+                // Проверяем тело запроса
+                expect(interception.response?.body).to.exist;
+            });
+        });
+    })
+
+    describe(`Отмена редактирования информации о компании`, () => {
+        it('Отмена редактирования информации о компании', () => {
+            cy.get('button.cursor-pointer').contains('Войти').click();
+
+            // Проверяем, что модальное окно открылось
+            cy.get('[role="dialog"]').should('be.visible');
+
+            // Ввод данных в форму
+            cy.get('input[placeholder="Введите логин оператора"]').type("admin@test");
+            cy.get('input[placeholder="Введите пароль"]').type("password123");
+
+            // Авторизация
+            cy.get('[role="dialog"]').contains('Войти').click();
+
+            // Проверяем, что модальное окно исчезло
+            cy.get('[role="dialog"]').should('not.exist');
+
+            // Кликаем на кнопку редактирования
+            cy.get('button.cursor-pointer').contains('Редактировать').click();
+
+            // Проверяем, что модальное окно открылось
+            cy.get('[role="dialog"]').should('be.visible');
+
+            // Сохраняем изначальные данные
+            const originalData = {
+                companyName: '',
+                mailAddress: '',
+                contactEmail: '',
+                managerPhone: '',
+                operatorPhone: ''
+            };
+
+            cy.get('input[placeholder="Наименование компании"]')
+                .invoke('val')
+                .then(val => { originalData.companyName = val; });
+            cy.get('input[placeholder="Почтовый адрес"]')
+                .invoke('val')
+                .then(val => { originalData.mailAddress = val; });
+            cy.get('input[placeholder="Email для связи"]')
+                .invoke('val')
+                .then(val => { originalData.contactEmail = val; });
+            cy.get('input[placeholder="Телефон менеджера"]')
+                .invoke('val')
+                .then(val => { originalData.managerPhone = val; });
+            cy.get('input[placeholder="Телефон оператора"]')
+                .invoke('val')
+                .then(val => { originalData.operatorPhone = val; });
+
+            // Ввод новых данных в форму
+            cy.get('input[placeholder="Наименование компании"]').clear().type("HITs Delivery service");
+            cy.get('input[placeholder="Почтовый адрес"]').clear().type("Пр. Ленина");
+            cy.get('input[placeholder="Email для связи"]').clear().type("delivery@list.ru");
+            cy.get('input[placeholder="Телефон менеджера"]').clear().type("+79547856512");
+            cy.get('input[placeholder="Телефон оператора"]').clear().type("89134587596");
+
+            // Отмена редактирования данных
+            cy.get('[role="dialog"]').contains('Отмена').click();
+
+            // Проверяем, что модальное окно исчезло
+            cy.get('[role="dialog"]').should('not.exist');
+
+            // Проверяем, что данные на странице не изменились 
+            cy.get('.name-company').should('contain.text', originalData.companyName);
+            cy.get('[data-testid="about-item-Почтовый адрес:"]').should('contain.text', originalData.mailAddress);
+            cy.get('[data-testid="about-item-Email для связи:"]').should('contain.text', originalData.contactEmail);
+            cy.get('[data-testid="about-item-Телефон менеджера:"]').should('contain.text', originalData.managerPhone);
+            cy.get('[data-testid="about-item-Телефон оператора:"]').should('contain.text', originalData.operatorPhone);
+        });
+    })
+
+    const testEditAboutData = [
+        {
+            companyName: '',
+            mailAddress: '',
+            contactEmail: '',
+            managerPhone: '',
+            operatorPhone: ''
+        },
+        {
+            companyName: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+            mailAddress: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+            contactEmail: 'emailv@ru',
+            managerPhone: '78984',
+            operatorPhone: '7'
+        },
+        {
+            companyName: 'a',
+            mailAddress: 'a',
+            contactEmail: 'email',
+            managerPhone: '7',
+            operatorPhone: '78951422'
+        }
+    ];
+    describe(`Проверка валидаци при редактировании информации о компании`, () => {
+        testEditAboutData.forEach(({ companyName, mailAddress, contactEmail, managerPhone, operatorPhone }) => {
+            it('Выдает предупреждения', () => {
+                cy.get('button.cursor-pointer').contains('Войти').click();
+
+                // Проверяем, что модальное окно открылось
+                cy.get('[role="dialog"]').should('be.visible');
+
+                // Ввод данных в форму
+                cy.get('input[placeholder="Введите логин оператора"]').type("admin@test");
+                cy.get('input[placeholder="Введите пароль"]').type("password123");
+
+                // Авторизация
+                cy.get('[role="dialog"]').contains('Войти').click();
+
+                // Проверяем, что модальное окно исчезло
+                cy.get('[role="dialog"]').should('not.exist');
+
+                // Кликаем на кнопку редактирования
+                cy.get('button.cursor-pointer').contains('Редактировать').click();
+
+                // Проверяем, что модальное окно открылось
+                cy.get('[role="dialog"]').should('be.visible');
+
+                // Ввод данных в форму
+                cy.get('input[placeholder="Наименование компании"]').clear();
+                if (companyName !== '') cy.get('input[placeholder="Наименование компании"]').type(companyName);
+
+                cy.get('input[placeholder="Почтовый адрес"]').clear();
+                if (mailAddress !== '') cy.get('input[placeholder="Почтовый адрес"]').type(mailAddress);
+
+                cy.get('input[placeholder="Email для связи"]').clear();
+                if (contactEmail !== '') cy.get('input[placeholder="Email для связи"]').type(contactEmail);
+
+                cy.get('input[placeholder="Телефон менеджера"]').clear();
+                if (managerPhone !== '') cy.get('input[placeholder="Телефон менеджера"]').type(managerPhone);
+
+                cy.get('input[placeholder="Телефон оператора"]').clear();
+                if (operatorPhone !== '') cy.get('input[placeholder="Телефон оператора"]').type(operatorPhone);
+
+                // Редактирование данных
+                cy.get('[role="dialog"]').contains('Сохранить').click();
+
+                // Массив полей и сообщений
+                const validationFields = [
+                    {
+                        selector: 'input[placeholder="Наименование компании"]',
+                        message: [
+                            'Минимум 2 символа',
+                            'Максимум 50 символов'
+                        ]
+                    },
+                    {
+                        selector: 'input[placeholder="Почтовый адрес"]',
+                        message: [
+                            'Минимум 2 символа',
+                            'Максимум 50 символов'
+                        ]
+                    },
+                    {
+                        selector: 'input[placeholder="Email для связи"]',
+                        message: 'Введите корректный email'
+                    },
+                    {
+                        selector: 'input[placeholder="Телефон менеджера"]',
+                        message: 'Введите корректный телефон менеджера'
+                    },
+                    {
+                        selector: 'input[placeholder="Телефон оператора"]',
+                        message: 'Введите корректный телефон оператора'
+                    }
+                ];
+
+                // Проверка на наличие предупреждений
+                validationFields.forEach(field => {
+                    cy.get(field.selector)
+                        .parent().parent()
+                        .find('[data-slot="form-message"]')
+                        .should('be.visible')
+                        .invoke('text')
+                        .should('satisfy', (text: string) => {
+                            const messages = Array.isArray(field.message) ? field.message : [field.message];
+                            return messages.some(msg => text.includes(msg));
+                        });
+                });
+            });
+        })
+    })
+
+    const testAddNewOperatorData = [
+        {
+            fullName: '',
+            password: '',
+            phone: '',
+            username: ''
+        },
+        {
+            fullName: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' +
+                'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' +
+                'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+            password: 'abc=def',
+            phone: '78984',
+            username: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+        },
+        {
+            fullName: 'aa',
+            password: 'abcdef1234567890!?#$%',
+            phone: '7',
+            username: 'a'
+        }
+    ];
+    describe(`Проверка валидаци при добавлении нового оператора`, () => {
+        testAddNewOperatorData.forEach(({ fullName, password, phone, username }) => {
+            it('Выдает предупреждения', () => {
+                cy.get('button.cursor-pointer').contains('Войти').click();
+
+                // Проверяем, что модальное окно открылось
+                cy.get('[role="dialog"]').should('be.visible');
+
+                // Ввод данных в форму
+                cy.get('input[placeholder="Введите логин оператора"]').type("admin@test");
+                cy.get('input[placeholder="Введите пароль"]').type("password123");
+
+                // Авторизация
+                cy.get('[role="dialog"]').contains('Войти').click();
+
+                // Проверяем, что модальное окно исчезло
+                cy.get('[role="dialog"]').should('not.exist');
+
+                cy.get('a[href="#/operators"]').click();
+
+                // Кликаем на кнопку добавления
+                cy.get('.add-operator').click();
+
+                // Проверяем, что модальное окно открылось
+                cy.get('[role="dialog"]').should('be.visible');
+
+                // Ввод данных в форму
+                cy.get('input[placeholder="ФИО"]').clear();
+                if (fullName) cy.get('input[placeholder="ФИО"]').type(fullName);
+
+                cy.get('input[placeholder="Пароль"]').clear();
+                if (password) cy.get('input[placeholder="Пароль"]').type(password);
+
+                cy.get('input[placeholder="Номер телефона"]').clear();
+                if (phone) cy.get('input[placeholder="Номер телефона"]').type(phone);
+
+                cy.get('input[placeholder="Логин"]').clear();
+                if (username) cy.get('input[placeholder="Логин"]').type(username);
+
+                // Сохранение данных
+                cy.get('[role="dialog"]').contains('Создать').click();
+
+                // Массив полей и сообщений
+                const validationFields = [
+                    {
+                        selector: 'input[placeholder="ФИО"]',
+                        message: [
+                            'Минимум 3 символа',
+                            'Максимум 255 символов'
+                        ]
+                    },
+                    {
+                        selector: 'input[placeholder="Пароль"]',
+                        message: 'Введите корректный пароль'
+                    },
+                    {
+                        selector: 'input[placeholder="Номер телефона"]',
+                        message: 'Введите корректный номер телефона'
+                    },
+                    {
+                        selector: 'input[placeholder="Логин"]',
+                        message: [
+                            'Минимум 3 символа',
+                            'Максимум 100 символов'
+                        ]
+                    }
+                ];
+
+                // Проверка на наличие предупреждений
+                validationFields.forEach(field => {
+                    cy.get(field.selector)
+                        .parent().parent()
+                        .find('[data-slot="form-message"]')
+                        .should('be.visible')
+                        .invoke('text')
+                        .should('satisfy', (text: string) => {
+                            const messages = Array.isArray(field.message) ? field.message : [field.message];
+                            return messages.some(msg => text.includes(msg));
+                        });
+                });
+            });
+        })
+    })
+
+    describe(`Добавление нового оператора`, () => {
+        it('Добавление нового оператора', () => {
+            cy.intercept('POST', '**/api/users/registration/operator').as('addNewOperatorRequest');
+
+            cy.get('button.cursor-pointer').contains('Войти').click();
+
+            // Проверяем, что модальное окно открылось
+            cy.get('[role="dialog"]').should('be.visible');
+
+            // Ввод данных в форму
+            cy.get('input[placeholder="Введите логин оператора"]').type("admin@test");
+            cy.get('input[placeholder="Введите пароль"]').type("password123");
+
+            // Авторизация
+            cy.get('[role="dialog"]').contains('Войти').click();
+
+            // Проверяем, что модальное окно исчезло
+            cy.get('[role="dialog"]').should('not.exist');
+
+            cy.get('a[href="#/operators"]').click();
+
+            cy.get('.add-operator').click();
+
+            // Проверяем, что модальное окно открылось
+            cy.get('[role="dialog"]').should('be.visible');
+
+            // Ввод данных в форму
+            cy.get('input[placeholder="ФИО"]').type('Иванов Иван Иванович');
+            cy.get('input[placeholder="Пароль"]').type('abcde12345');
+            cy.get('input[placeholder="Номер телефона"]').type('89138527548');
+            cy.get('input[placeholder="Логин"]').type('login');
+
+            // Сохранение данных
+            cy.get('[role="dialog"]').contains('Создать').click();
+
+            //Проверяем, что модальное окно исчезло
+            cy.get('[role="dialog"]').should('not.exist');
+
+            cy.wait('@addNewOperatorRequest').then((interception: Interception) => {
+                // Проверяем тело запроса
+                expect(interception.response?.body).to.exist;
+            });
+        })
+    })
+
+    describe(`Удаление оператора`, () => {
+        it('Удаление оператора', () => {
+            cy.intercept('DELETE', '**/api/users/operators/**').as('deleteOperatorRequest');
+
+            cy.get('button.cursor-pointer').contains('Войти').click();
+
+            // Проверяем, что модальное окно открылось
+            cy.get('[role="dialog"]').should('be.visible');
+
+            // Ввод данных в форму
+            cy.get('input[placeholder="Введите логин оператора"]').type("admin@test");
+            cy.get('input[placeholder="Введите пароль"]').type("password123");
+
+            // Авторизация
+            cy.get('[role="dialog"]').contains('Войти').click();
+
+            // Проверяем, что модальное окно исчезло
+            cy.get('[role="dialog"]').should('not.exist');
+
+            cy.get('a[href="#/operators"]').click();
+
+            cy.get('div.operator-item', { timeout: 3000 })
+                .should('have.length.greaterThan', 0)
+                .first().as('firstOperator');
+
+            cy.get('@firstOperator')
+                .within(() => {
+                    // Кликаем на кнопку удаления оператора
+                    cy.get('button.cursor-pointer').contains('Удалить аккаунт оператора').click();
+                })
+
+            cy.wait('@deleteOperatorRequest').then((interception: Interception) => {
+                // Проверяем тело запроса
+                expect(interception.response?.body).to.exist;
             });
         })
     })

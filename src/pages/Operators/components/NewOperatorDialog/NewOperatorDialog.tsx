@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog.tsx";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form.tsx";
+import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { useNewOperatorDialog } from "./hooks/useNewOperatorDialog";
@@ -35,9 +35,11 @@ const NewOperatorDialog = ({ newOperator, reloadOperators, setIsOpen, isOpen }: 
                                         <FormControl>
                                             <Input placeholder="ФИО" {...field} />
                                         </FormControl>
-                                        {fieldState.error && (
-                                            <p className="text-red-600 text-xs mt-1">{fieldState.error.message}</p>
-                                        )}
+                                        <FormMessage>
+                                            {fieldState.error && (
+                                                <p className="text-red-600 text-xs mt-1">{fieldState.error.message}</p>
+                                            )}
+                                        </FormMessage>
                                     </FormItem>
                                 )}
                             />
@@ -52,9 +54,11 @@ const NewOperatorDialog = ({ newOperator, reloadOperators, setIsOpen, isOpen }: 
                                         <FormControl>
                                             <Input placeholder="Пароль" {...field} />
                                         </FormControl>
-                                        {fieldState.error && (
-                                            <p className="text-red-600 text-xs mt-1">{fieldState.error.message}</p>
-                                        )}
+                                        <FormMessage>
+                                            {fieldState.error && (
+                                                <p className="text-red-600 text-xs mt-1">{fieldState.error.message}</p>
+                                            )}
+                                        </FormMessage>
                                     </FormItem>
                                 )}
                             />
@@ -72,9 +76,11 @@ const NewOperatorDialog = ({ newOperator, reloadOperators, setIsOpen, isOpen }: 
                                                 placeholder="Номер телефона"
                                             />
                                         </FormControl>
-                                        {fieldState.error && (
-                                            <p className="text-red-600 text-xs mt-1">{fieldState.error.message}</p>
-                                        )}
+                                        <FormMessage>
+                                            {fieldState.error && (
+                                                <p className="text-red-600 text-xs mt-1">{fieldState.error.message}</p>
+                                            )}
+                                        </FormMessage>
                                     </FormItem>
                                 )}
                             />
@@ -89,9 +95,11 @@ const NewOperatorDialog = ({ newOperator, reloadOperators, setIsOpen, isOpen }: 
                                         <FormControl>
                                             <Input placeholder="Логин" {...field} />
                                         </FormControl>
-                                        {fieldState.error && (
-                                            <p className="text-red-600 text-xs mt-1">{fieldState.error.message}</p>
-                                        )}
+                                        <FormMessage>
+                                            {fieldState.error && (
+                                                <p className="text-red-600 text-xs mt-1">{fieldState.error.message}</p>
+                                            )}
+                                        </FormMessage>
                                     </FormItem>
                                 )}
                             />

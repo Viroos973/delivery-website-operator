@@ -11,7 +11,7 @@ const Operators = () => {
         <div className="flex flex-col items-center mt-8 gap-8 w-full">
             <div className='flex flex-row justify-between items-center w-[90%]'>
                 <span className='text-4xl font-medium text-center flex-1'>Управление операторами</span>
-                <SquarePlus className='w-[36px] h-[36px] cursor-pointer' onClick={() => functions.setIsOpen(true)}></SquarePlus>
+                <SquarePlus className='w-[36px] h-[36px] cursor-pointer add-operator' onClick={() => functions.setIsOpen(true)}></SquarePlus>
                 <NewOperatorDialog isOpen={state.isOpen} setIsOpen={functions.setIsOpen} newOperator={state.newOperator}
                     reloadOperators={state.operators.refetch} />
             </div>
