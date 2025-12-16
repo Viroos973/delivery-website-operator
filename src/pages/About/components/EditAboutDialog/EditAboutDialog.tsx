@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog.tsx";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form.tsx";
+import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { useEditAboutDialog } from "./hooks/useEditAboutDialog";
@@ -35,9 +35,11 @@ const EditAboutDialog = ({ abouts, setIsOpen, isOpen, reloadAbout }: NewOperator
                                         <FormControl>
                                             <Input placeholder="Наименование компании" {...field} />
                                         </FormControl>
-                                        {fieldState.error && (
-                                            <p className="text-red-600 text-xs mt-1">{fieldState.error.message}</p>
-                                        )}
+                                        <FormMessage>
+                                            {fieldState.error && (
+                                                <p className="text-red-600 text-xs mt-1">{fieldState.error.message}</p>
+                                            )}
+                                        </FormMessage>
                                     </FormItem>
                                 )}
                             />
@@ -52,9 +54,11 @@ const EditAboutDialog = ({ abouts, setIsOpen, isOpen, reloadAbout }: NewOperator
                                         <FormControl>
                                             <Input placeholder="Почтовый адрес" {...field} />
                                         </FormControl>
-                                        {fieldState.error && (
-                                            <p className="text-red-600 text-xs mt-1">{fieldState.error.message}</p>
-                                        )}
+                                        <FormMessage>
+                                            {fieldState.error && (
+                                                <p className="text-red-600 text-xs mt-1">{fieldState.error.message}</p>
+                                            )}
+                                        </FormMessage>
                                     </FormItem>
                                 )}
                             />
@@ -69,9 +73,11 @@ const EditAboutDialog = ({ abouts, setIsOpen, isOpen, reloadAbout }: NewOperator
                                         <FormControl>
                                             <Input placeholder="Email для связи" {...field} />
                                         </FormControl>
-                                        {fieldState.error && (
-                                            <p className="text-red-600 text-xs mt-1">{fieldState.error.message}</p>
-                                        )}
+                                        <FormMessage>
+                                            {fieldState.error && (
+                                                <p className="text-red-600 text-xs mt-1">{fieldState.error.message}</p>
+                                            )}
+                                        </FormMessage>
                                     </FormItem>
                                 )}
                             />
@@ -89,9 +95,11 @@ const EditAboutDialog = ({ abouts, setIsOpen, isOpen, reloadAbout }: NewOperator
                                                 placeholder="Телефон менеджера"
                                             />
                                         </FormControl>
-                                        {fieldState.error && (
-                                            <p className="text-red-600 text-xs mt-1">{fieldState.error.message}</p>
-                                        )}
+                                        <FormMessage>
+                                            {fieldState.error && (
+                                                <p className="text-red-600 text-xs mt-1">{fieldState.error.message}</p>
+                                            )}
+                                        </FormMessage>
                                     </FormItem>
                                 )}
                             />
@@ -109,9 +117,11 @@ const EditAboutDialog = ({ abouts, setIsOpen, isOpen, reloadAbout }: NewOperator
                                                 placeholder="Телефон оператора"
                                             />
                                         </FormControl>
-                                        {fieldState.error && (
-                                            <p className="text-red-600 text-xs mt-1">{fieldState.error.message}</p>
-                                        )}
+                                        <FormMessage>
+                                            {fieldState.error && (
+                                                <p className="text-red-600 text-xs mt-1">{fieldState.error.message}</p>
+                                            )}
+                                        </FormMessage>
                                     </FormItem>
                                 )}
                             />

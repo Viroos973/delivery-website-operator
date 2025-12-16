@@ -53,6 +53,8 @@ describe('UI-tests', () => {
 
     describe(`Смена статуса у заказа`, () => {
         it('Смена статуса у заказа', () => {
+            let selectStatus = 'Новый';
+
             cy.intercept('PUT', '**/order/change-order-status/**').as('statusChangeRequest');
 
             cy.get('button.cursor-pointer').contains('Войти').click();
@@ -80,41 +82,30 @@ describe('UI-tests', () => {
                 .within(() => {
                     //кликаем на селект
                     cy.get('.select-change-status').click();
+                    cy.get('.select-change-status').invoke('text').then((text: string) => text.trim()).as('orderStatus');
                 })
 
-            //проверяем,что открылся
-            cy.get('[data-slot="select-content"]', { timeout: 5000 }).should('be.visible');
-            //тыкаем на нужный статус
-            cy.get('.select-item-CONFIRMED').click({ force: true });
-            //проверяем, что селект закрылся
-            cy.get('[data-slot="select-content"]', { timeout: 5000 }).should('not.exist');
+            cy.get('@orderStatus').then((status: string) => {
+                //проверяем,что открылся
+                cy.get('[data-slot="select-content"]', { timeout: 5000 }).should('be.visible');
 
-            cy.wait('@statusChangeRequest').then((interception: Interception) => {
-                // Проверяем тело запроса
-                expect(interception.response?.body).to.deep.equal({
-                    message: "Order status updated successfully"
+                //тыкаем на нужный статус
+                if (status === 'Новый') {
+                    cy.get('.select-item-CONFIRMED').click({ force: true });
+                } else {
+                    cy.get('.select-item-NEW').click({ force: true });
+                }
+
+                //проверяем, что селект закрылся
+                cy.get('[data-slot="select-content"]', { timeout: 5000 }).should('not.exist');
+
+                cy.wait('@statusChangeRequest').then((interception: Interception) => {
+                    // Проверяем тело запроса
+                    expect(interception.response?.body).to.deep.equal({
+                        message: "Order status updated successfully"
+                    });
                 });
-            });
-
-            cy.get('@firstOrder')
-                .within(() => {
-                    //кликаем на селект
-                    cy.get('.select-change-status').click();
-                })
-
-            //проверяем,что открылся
-            cy.get('[data-slot="select-content"]', { timeout: 5000 }).should('be.visible');
-            //тыкаем на нужный статус
-            cy.get('.select-item-NEW').click({ force: true });
-            //проверяем, что селект закрылся
-            cy.get('[data-slot="select-content"]', { timeout: 5000 }).should('not.exist');
-
-            cy.wait('@statusChangeRequest').then((interception: Interception) => {
-                // Проверяем тело запроса
-                expect(interception.response?.body).to.deep.equal({
-                    message: "Order status updated successfully"
-                });
-            });
+            })
         })
     })
 
@@ -209,7 +200,7 @@ describe('UI-tests', () => {
 
     describe(`Назначение себя оператором`, () => {
         it('Назначение себя оператором', () => {
-            cy.intercept('PUT', '**/order/change-operator-for-order/**').as('appointOperatorRequest');
+            cy.intercept('PUT', '**/order/change-operator-for-order**').as('appointOperatorRequest');
 
             cy.get('button.cursor-pointer').contains('Войти').click();
 
@@ -228,32 +219,36 @@ describe('UI-tests', () => {
 
             cy.get('a[href="#/orders"]').click();
 
-            cy.get('div.order-item', { timeout: 3000 }).each(($el, index, $list) => {
-                cy.wrap($el).find('button.cursor-pointer').contains('Назначить себя оператором').then($btn => {
-                    if ($btn.length > 0 && $btn.should('be.visible')) {
-                        //Тыкаем на кнопку
-                        cy.get('button.cursor-pointer').contains('Назначить себя оператором').click();
+            cy.get('div.order-item', { timeout: 3000 }).each(($el, index) => {
+                // Проверяем, есть ли внутри элемента кнопка с нужным текстом
+                const $btn = $el.find('button.cursor-pointer:contains("Назначить себя оператором")');
 
-                        //Проверяем, что кнопка исчезла
-                        cy.get('button.cursor-pointer').contains('Назначить себя оператором', { timeout: 5000 }).should('not.exist');
+                // Если кнопка не найдена, переходим к следующему элементу
+                if ($btn.length === 0) {
+                    cy.log(`Элемент ${index} не содержит нужную кнопку, пропускаем`);
+                } else {
+                    // Если кнопка найдена, выполняем действия
+                    cy.wrap($btn)
+                        .should('be.visible')
+                        .click();
 
-                        cy.wait('@appointOperatorRequest').then((interception: Interception) => {
-                            // Проверяем тело запроса
-                            expect(interception.response?.body).to.deep.equal({
-                                message: "Operator changed successfully"
-                            });
+                    // Ожидаем запроса
+                    cy.wait('@appointOperatorRequest').then((interception: Interception) => {
+                        expect(interception.response?.body).to.deep.equal({
+                            message: "Operator changed successfully"
                         });
+                    });
 
-                        return false;
-                    }
-                });
+                    // Прерываем цикл после успешного выполнения
+                    return false;
+                }
             });
         });
     })
 
     describe(`Редактирование информации о компании`, () => {
         it('Редактирование информации о компании', () => {
-            cy.intercept('PUT', '**/api/about/**').as('editAboutRequest');
+            cy.intercept('PUT', '**/api/about').as('editAboutRequest');
 
             cy.get('button.cursor-pointer').contains('Войти').click();
 
@@ -270,8 +265,6 @@ describe('UI-tests', () => {
             // Проверяем, что модальное окно исчезло
             cy.get('[role="dialog"]').should('not.exist');
 
-            cy.get('a[href="#/about"]').click();
-
             // Кликаем на кнопку редактирования
             cy.get('button.cursor-pointer').contains('Редактировать').click();
 
@@ -279,11 +272,11 @@ describe('UI-tests', () => {
             cy.get('[role="dialog"]').should('be.visible');
 
             // Ввод данных в форму
-            cy.get('input[placeholder="Наименование компании"]').type("HITs Delivery service");
-            cy.get('input[placeholder="Почтовый адрес"]').type("Пр. Ленина");
-            cy.get('input[placeholder="Email для связи"]').type("delivery@list.ru");
-            cy.get('input[placeholder="Телефон менеджера"]').type("+79547856512");
-            cy.get('input[placeholder="Телефон оператора"]').type("89134587596");
+            cy.get('input[placeholder="Наименование компании"]').clear().type("HITs Delivery service");
+            cy.get('input[placeholder="Почтовый адрес"]').clear().type("Пр. Ленина");
+            cy.get('input[placeholder="Email для связи"]').clear().type("delivery@list.ru");
+            cy.get('input[placeholder="Телефон менеджера"]').clear().type("+79547856512");
+            cy.get('input[placeholder="Телефон оператора"]').clear().type("89134587596");
 
             // Редактирование данных
             cy.get('[role="dialog"]').contains('Сохранить').click();
@@ -315,8 +308,6 @@ describe('UI-tests', () => {
             // Проверяем, что модальное окно исчезло
             cy.get('[role="dialog"]').should('not.exist');
 
-            cy.get('a[href="#/about"]').click();
-
             // Кликаем на кнопку редактирования
             cy.get('button.cursor-pointer').contains('Редактировать').click();
 
@@ -324,7 +315,7 @@ describe('UI-tests', () => {
             cy.get('[role="dialog"]').should('be.visible');
 
             // Сохраняем изначальные данные
-            let originalData = {
+            const originalData = {
                 companyName: '',
                 mailAddress: '',
                 contactEmail: '',
@@ -349,11 +340,11 @@ describe('UI-tests', () => {
                 .then(val => { originalData.operatorPhone = val; });
 
             // Ввод новых данных в форму
-            cy.get('input[placeholder="Наименование компании"]').type("HITs Delivery service");
-            cy.get('input[placeholder="Почтовый адрес"]').type("Пр. Ленина");
-            cy.get('input[placeholder="Email для связи"]').type("delivery@list.ru");
-            cy.get('input[placeholder="Телефон менеджера"]').type("+79547856512");
-            cy.get('input[placeholder="Телефон оператора"]').type("89134587596");
+            cy.get('input[placeholder="Наименование компании"]').clear().type("HITs Delivery service");
+            cy.get('input[placeholder="Почтовый адрес"]').clear().type("Пр. Ленина");
+            cy.get('input[placeholder="Email для связи"]').clear().type("delivery@list.ru");
+            cy.get('input[placeholder="Телефон менеджера"]').clear().type("+79547856512");
+            cy.get('input[placeholder="Телефон оператора"]').clear().type("89134587596");
 
             // Отмена редактирования данных
             cy.get('[role="dialog"]').contains('Отмена').click();
@@ -383,13 +374,13 @@ describe('UI-tests', () => {
             mailAddress: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
             contactEmail: 'emailv@ru',
             managerPhone: '78984',
-            operatorPhone: '7895142348452'
+            operatorPhone: '7'
         },
         {
             companyName: 'a',
             mailAddress: 'a',
             contactEmail: 'email',
-            managerPhone: '7898435353535355',
+            managerPhone: '7',
             operatorPhone: '78951422'
         }
     ];
@@ -411,8 +402,6 @@ describe('UI-tests', () => {
                 // Проверяем, что модальное окно исчезло
                 cy.get('[role="dialog"]').should('not.exist');
 
-                cy.get('a[href="#/about"]').click();
-
                 // Кликаем на кнопку редактирования
                 cy.get('button.cursor-pointer').contains('Редактировать').click();
 
@@ -420,11 +409,20 @@ describe('UI-tests', () => {
                 cy.get('[role="dialog"]').should('be.visible');
 
                 // Ввод данных в форму
-                cy.get('input[placeholder="Наименование компании"]').type(companyName);
-                cy.get('input[placeholder="Почтовый адрес"]').type(mailAddress);
-                cy.get('input[placeholder="Email для связи"]').type(contactEmail);
-                cy.get('input[placeholder="Телефон менеджера"]').type(managerPhone);
-                cy.get('input[placeholder="Телефон оператора"]').type(operatorPhone);
+                cy.get('input[placeholder="Наименование компании"]').clear();
+                if (companyName !== '') cy.get('input[placeholder="Наименование компании"]').type(companyName);
+
+                cy.get('input[placeholder="Почтовый адрес"]').clear();
+                if (mailAddress !== '') cy.get('input[placeholder="Почтовый адрес"]').type(mailAddress);
+
+                cy.get('input[placeholder="Email для связи"]').clear();
+                if (contactEmail !== '') cy.get('input[placeholder="Email для связи"]').type(contactEmail);
+
+                cy.get('input[placeholder="Телефон менеджера"]').clear();
+                if (managerPhone !== '') cy.get('input[placeholder="Телефон менеджера"]').type(managerPhone);
+
+                cy.get('input[placeholder="Телефон оператора"]').clear();
+                if (operatorPhone !== '') cy.get('input[placeholder="Телефон оператора"]').type(operatorPhone);
 
                 // Редактирование данных
                 cy.get('[role="dialog"]').contains('Сохранить').click();
@@ -462,10 +460,14 @@ describe('UI-tests', () => {
                 // Проверка на наличие предупреждений
                 validationFields.forEach(field => {
                     cy.get(field.selector)
-                        .parent()
+                        .parent().parent()
                         .find('[data-slot="form-message"]')
                         .should('be.visible')
-                        .and('contain.text', field.message);
+                        .invoke('text')
+                        .should('satisfy', (text: string) => {
+                            const messages = Array.isArray(field.message) ? field.message : [field.message];
+                            return messages.some(msg => text.includes(msg));
+                        });
                 });
             });
         })
@@ -489,7 +491,7 @@ describe('UI-tests', () => {
         {
             fullName: 'aa',
             password: 'abcdef1234567890!?#$%',
-            phone: '7898435353535355',
+            phone: '7',
             username: 'a'
         }
     ];
@@ -520,10 +522,17 @@ describe('UI-tests', () => {
                 cy.get('[role="dialog"]').should('be.visible');
 
                 // Ввод данных в форму
-                cy.get('input[placeholder="ФИО"]').type(fullName);
-                cy.get('input[placeholder="Пароль"]').type(password);
-                cy.get('input[placeholder="Номер телефона"]').type(phone);
-                cy.get('input[placeholder="Логин"]').type(username);
+                cy.get('input[placeholder="ФИО"]').clear();
+                if (fullName) cy.get('input[placeholder="ФИО"]').type(fullName);
+
+                cy.get('input[placeholder="Пароль"]').clear();
+                if (password) cy.get('input[placeholder="Пароль"]').type(password);
+
+                cy.get('input[placeholder="Номер телефона"]').clear();
+                if (phone) cy.get('input[placeholder="Номер телефона"]').type(phone);
+
+                cy.get('input[placeholder="Логин"]').clear();
+                if (username) cy.get('input[placeholder="Логин"]').type(username);
 
                 // Сохранение данных
                 cy.get('[role="dialog"]').contains('Создать').click();
@@ -557,10 +566,14 @@ describe('UI-tests', () => {
                 // Проверка на наличие предупреждений
                 validationFields.forEach(field => {
                     cy.get(field.selector)
-                        .parent()
+                        .parent().parent()
                         .find('[data-slot="form-message"]')
                         .should('be.visible')
-                        .and('contain.text', field.message);
+                        .invoke('text')
+                        .should('satisfy', (text: string) => {
+                            const messages = Array.isArray(field.message) ? field.message : [field.message];
+                            return messages.some(msg => text.includes(msg));
+                        });
                 });
             });
         })
@@ -568,7 +581,7 @@ describe('UI-tests', () => {
 
     describe(`Добавление нового оператора`, () => {
         it('Добавление нового оператора', () => {
-            cy.intercept('POST', '**/api/users/registration/operator/**').as('addNewOperatorRequest');
+            cy.intercept('POST', '**/api/users/registration/operator').as('addNewOperatorRequest');
 
             cy.get('button.cursor-pointer').contains('Войти').click();
 

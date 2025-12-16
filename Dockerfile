@@ -7,8 +7,6 @@ RUN npm install --legacy-peer-deps
 
 COPY . .
 
-RUN npm run build
-
 EXPOSE 4175
 
-CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "4175"]
+CMD ["npm", "run", "build-and-preview"]

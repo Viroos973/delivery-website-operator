@@ -1,0 +1,1 @@
+export const AUTH_BUG = import.meta.env.VITE_AUTH_BUG === "true";
