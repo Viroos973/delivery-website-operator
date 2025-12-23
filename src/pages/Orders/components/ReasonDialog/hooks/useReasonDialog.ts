@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import {type GetReasonSchema, reasonSchema} from "../constants/ReasonShema";
 import { usePutDeclineOrderMutation } from "@/utils/api/hooks/usePutDeclineOrderMutation";
 import {zodResolver} from "@hookform/resolvers/zod";
+import {FOR_NO_REASON} from "@/utils/constants/envBugs.ts";
 
 export const useReasonDialog = (isReason: boolean,
     setIsReason: (isReason: boolean) => void, order: Order,
@@ -10,7 +11,7 @@ export const useReasonDialog = (isReason: boolean,
     const declineOrder = usePutDeclineOrderMutation()
 
     const newReasonForm = useForm<GetReasonSchema>({
-        resolver: zodResolver(reasonSchema),
+        resolver: !FOR_NO_REASON ? zodResolver(reasonSchema) : undefined,
         defaultValues: {
             reason: ''
         }

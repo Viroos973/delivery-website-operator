@@ -1,5 +1,6 @@
 import { useGetFoodsWithFiltersQuery } from "@/utils/api/hooks/useGetFoodsWithFiltersQuery";
 import { useMemo } from "react";
+import {ERROR_ADD_NEW_DISH_INTO_ORDER} from "@/utils/constants/envBugs.ts";
 
 export const useAddDishDialog = (setIsAddDish: (isAddDish: boolean) => void, orderDish:  Meal[]) => {
     const dishes = useGetFoodsWithFiltersQuery({
@@ -20,7 +21,7 @@ export const useAddDishDialog = (setIsAddDish: (isAddDish: boolean) => void, ord
     const filteredDishes = useMemo(() => {
         const orderDishIdsSet = new Set(orderDish.map(dish => dish.id));
         return dishes.data?.data.filter(dish =>
-            !orderDishIdsSet.has(dish.id)
+            (ERROR_ADD_NEW_DISH_INTO_ORDER && orderDishIdsSet.has(dish.id)) || (!ERROR_ADD_NEW_DISH_INTO_ORDER && !orderDishIdsSet.has(dish.id))
         ) || [];
     }, [dishes.data?.data, orderDish]);
 

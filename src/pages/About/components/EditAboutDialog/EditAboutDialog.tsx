@@ -16,7 +16,7 @@ const EditAboutDialog = ({ abouts, setIsOpen, isOpen, reloadAbout }: NewOperator
     const { form, functions } = useEditAboutDialog(setIsOpen, isOpen, reloadAbout, abouts);
 
     return (
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <Dialog open={isOpen} onOpenChange={functions.handleOpenChange}>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle>Редактирование информации "О нас"</DialogTitle>

@@ -2,8 +2,9 @@ import { useDeleteDishByIdFromOrderMutation } from "@/utils/api/hooks/useDeleteD
 import { useGetOrderByIdQuery } from "@/utils/api/hooks/useGetOrderByIdQuery";
 import { usePutChangeOperatorMutation } from "@/utils/api/hooks/usePutChangeOperatorForOrderMutation";
 import { useAuth } from "@/utils/contexts/auth/useAuth";
-import { useMemo, useState } from "react";
+import {useMemo, useRef, useState} from "react";
 import { useParams } from "react-router-dom";
+import {TOTAL_COST_NOT_UPDATE} from "@/utils/constants/envBugs.ts";
 
 const ITEMS_PER_PAGE = 8;
 export const useOrderDetail = () => {
@@ -13,6 +14,8 @@ export const useOrderDetail = () => {
     const deleteDishFromOrder = useDeleteDishByIdFromOrderMutation()
 
     const { authenticated, roles, userId } = useAuth()
+    const firstPriceRef = useRef<number | null>(null);
+    const shouldPreservePriceRef = useRef(false);
     const [isComment, setIsComment] = useState<boolean>(false);
     const [isChangeOperator, setIsChangeOperator] = useState<boolean>(false);
     const [isAddDish, setIsAddDish] = useState<boolean>(false);
@@ -22,6 +25,24 @@ export const useOrderDetail = () => {
             comment: ''
         }
     );
+
+    const totalPrice = useMemo(() => {
+        const currentPrice = order.data?.data.reservation.price;
+
+        if (currentPrice) {
+            if (!shouldPreservePriceRef.current) {
+                firstPriceRef.current = currentPrice;
+            }
+        }
+
+        if (TOTAL_COST_NOT_UPDATE && firstPriceRef.current) {
+            shouldPreservePriceRef.current = true;
+            return firstPriceRef.current;
+        }
+
+        shouldPreservePriceRef.current = false;
+        return currentPrice;
+    }, [order.data]);
 
     const totalPage = useMemo(() => {
         if (!order.data?.data.meal) return 0
@@ -47,7 +68,7 @@ export const useOrderDetail = () => {
     }
 
     return {
-        state: { order, isComment, comment, isChangeOperator, isAddDish, isHistory, authenticated, roles, totalPage, id, userId },
+        state: { order, isComment, comment, isChangeOperator, isAddDish, isHistory, authenticated, roles, totalPage, id, userId, totalPrice },
         functions: {
             setIsComment,
             setComment,

@@ -41,7 +41,7 @@ const OrderDetail = () => {
                     </div>
                     <div className="flex flex-col items-center">
                         <div className="flex flex-row items-center">
-                            <span className="text-3xl font-medium">{state.order.data?.data.reservation.price}</span>
+                            <span className="text-3xl font-medium">{state.totalPrice}</span>
                             <RussianRuble className="w-[22px] h-[22px]" />
                         </div>
                         <span className="font-medium">{getPaymentMethod(state.order.data?.data.reservation.payWay)}</span>

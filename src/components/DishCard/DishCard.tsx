@@ -3,6 +3,7 @@ import {Star} from "lucide-react";
 import React from "react";
 import {Badge} from "@/components/ui/badge.tsx";
 import {NavLink} from "react-router-dom";
+import {DISH_NOT_FOUND} from "@/utils/constants/envBugs.ts";
 
 interface DishCardProps extends Dish {
     children?: React.ReactNode;
@@ -14,7 +15,7 @@ const DishCard = ({ id, photos, name, price, rate, description, children }: Dish
             <Badge className="absolute top-0 right-0">
                 {`${price} ₽`}
             </Badge>
-            <NavLink to={`/dish/${id}`} className="cursor-pointer">
+            <NavLink to={!DISH_NOT_FOUND ? `/dish/${id}` : '/dish/undefined'} className="cursor-pointer">
                 <div className="h-[300px] overflow-hidden bg-gray-100">
                     <img
                         src={photos[0] || "https://cdn1.ozone.ru/s3/multimedia-d/6319443853.jpg"}

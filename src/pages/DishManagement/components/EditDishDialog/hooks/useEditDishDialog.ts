@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { usePutUpdateDishMutation } from "@/utils/api/hooks/usePutUpdateDishMutation"
 import {useGetDishByIdQuery} from "@/utils/api/hooks/useGetDishByIdQuery.ts";
 import {useGetCategoriesQuery} from "@/utils/api/hooks/useGetCategoriesQuery.ts";
+import {PHOTO_NOT_DELETE} from "@/utils/constants/envBugs.ts";
 
 export const useEditDishDialog = (setIsOpen: (isOpen: boolean) => void, reloadDishes: () => void, isOpen: boolean, dishId?: string) => {
     const editDish = usePutUpdateDishMutation()
@@ -85,7 +86,7 @@ export const useEditDishDialog = (setIsOpen: (isOpen: boolean) => void, reloadDi
 
     const removePhoto = (fileIndex: number, photoUrl?: string) => {
         if (photoUrl && dish.data?.data.foodDetails.photos.includes(photoUrl)) {
-            setPhotosToDelete(prev => [...prev, photoUrl])
+            if (!PHOTO_NOT_DELETE) setPhotosToDelete(prev => [...prev, photoUrl])
             setExistingPhotos(prev => prev.filter(photo => photo !== photoUrl))
         } else {
             setSelectedFile(prev => prev.filter((_, index) => index !== (fileIndex - existingPhotos.length)))

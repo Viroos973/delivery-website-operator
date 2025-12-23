@@ -3,13 +3,14 @@ import {commentSchema, type GetCommentSchema} from "../constants/CommentShema";
 import { useEffect } from "react";
 import { usePutAddCommentMutation } from "@/utils/api/hooks/usePutAddCommentMutation";
 import {zodResolver} from "@hookform/resolvers/zod";
+import {FOR_NO_REASON} from "@/utils/constants/envBugs.ts";
 
 export const useCommentDialog = (isComment: boolean,
     setIsComment: (isComment: boolean) => void, order: Order) => {
     const addComment = usePutAddCommentMutation()
 
     const newCommentForm = useForm<GetCommentSchema>({
-        resolver: zodResolver(commentSchema),
+        resolver: !FOR_NO_REASON ? zodResolver(commentSchema) : undefined,
         defaultValues: {
             comment: ''
         }
