@@ -3,7 +3,7 @@ import { useEffect } from "react"
 import { editAboutSchema, type EditAboutSchema } from "../constants/EditAboutShema"
 import { zodResolver } from "@hookform/resolvers/zod";
 import { usePutEditAboutMutation } from "@/utils/api/hooks/usePutEditAbout";
-import {ALWAYS_SUCCESS_ABOUT_US} from "@/utils/constants/envBugs.ts";
+import {ALWAYS_SAVE_ABOUT_US} from "@/utils/constants/envBugs.ts";
 
 export const useEditAboutDialog = (setIsOpen: (isOpen: boolean) => void, isOpen: boolean,
     reloadAbout: () => void, abouts?: EditAboutSchema) => {
@@ -40,7 +40,7 @@ export const useEditAboutDialog = (setIsOpen: (isOpen: boolean) => void, isOpen:
             return;
         }
 
-        if (!newOpenState && ALWAYS_SUCCESS_ABOUT_US) {
+        if (!newOpenState && ALWAYS_SAVE_ABOUT_US) {
             try {
                 const isDirty = aboutForm.formState.isDirty;
 

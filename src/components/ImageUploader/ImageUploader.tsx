@@ -40,7 +40,7 @@ const ImageUploader = ({ className, onFileSelected, removePhoto, index, photoUrl
                                 onClick={removePhoto}
                                 type='button'
                                 className='absolute right-[-8px] top-[-8px] h-4 w-4 rounded-full bg-[#F87171] p-3
-                                    hover:bg-[#F87171] cursor-pointer'
+                                    hover:bg-[#F87171] cursor-pointer remove-photo-into-order'
                             >
                                 <X color='white'/>
                             </Button>
