@@ -103,7 +103,7 @@ const OrderDetail = () => {
                             </div>
                         ) : null}
                     </div>
-                    <div className="flex flex-col w-full border border-black  divide-y divide-black">
+                    <div className="flex flex-col w-full border border-black dish-list-item divide-y divide-black">
                         {state.order.data?.data.meal.map(meal => (
                             <DishItem key={meal.id} meal={meal} handleDeleteDishFromOrder={functions.handleDeleteDishFromOrder}
                                 roles={state.roles} authenticated={state.authenticated}

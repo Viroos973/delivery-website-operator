@@ -5,3 +5,4 @@ export const FOR_NO_REASON = import.meta.env.VITE_FOR_NO_REASON === "true";
 export const ERROR_ADD_NEW_DISH_INTO_ORDER = import.meta.env.VITE_ERROR_ADD_NEW_DISH_INTO_ORDER === "true";
 export const ALWAYS_SUCCESS_ABOUT_US = import.meta.env.VITE_ALWAYS_SUCCESS_ABOUT_US === "true";
 export const APPOINT_RESPONSIBLE_OPERATOR = import.meta.env.APPOINT_RESPONSIBLE_OPERATOR === "true";
+export const ALWAYS_SAVE_ABOUT_US = import.meta.env.VITE_ALWAYS_SAVE_ABOUT_US === "true";

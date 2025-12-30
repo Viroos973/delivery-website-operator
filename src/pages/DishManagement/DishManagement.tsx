@@ -23,21 +23,21 @@ const DishManagement = () => {
                     <DishCard key={dish.id} {...dish}>
                         <div className="flex flex-row justify-between items-center w-full">
                             {dish.isAvailable ? (
-                                <Button className="cursor-pointer"
+                                <Button className="cursor-pointer lock-btn"
                                         onClick={() => functions.handleDoAvailable(dish.id, false)}>
                                     <Lock />
                                 </Button>
                             ) : (
-                                <Button className="cursor-pointer"
+                                <Button className="cursor-pointer lock-open-btn"
                                         onClick={() => functions.handleDoAvailable(dish.id, true)}>
                                     <LockOpen />
                                 </Button>
                             )}
                             <div className="flex flex-row gap-1">
-                                <Button className="cursor-pointer" onClick={() => functions.handleOpenEdit(dish.id)}>
+                                <Button className="cursor-pointer edit-btn" onClick={() => functions.handleOpenEdit(dish.id)}>
                                     <PencilLine />
                                 </Button>
-                                <Button className="cursor-pointer" onClick={() => functions.handleDeleteDish(dish.id)}>
+                                <Button className="cursor-pointer delete-btn" onClick={() => functions.handleDeleteDish(dish.id)}>
                                     <Trash2 />
                                 </Button>
                             </div>

@@ -53,8 +53,6 @@ describe('UI-tests', () => {
 
     describe(`Смена статуса у заказа`, () => {
         it('Смена статуса у заказа', () => {
-            let selectStatus = 'Новый';
-
             cy.intercept('PUT', '**/order/change-order-status/**').as('statusChangeRequest');
 
             cy.get('button.cursor-pointer').contains('Войти').click();
@@ -197,6 +195,68 @@ describe('UI-tests', () => {
                 .and('contain.text', 'Это поле обязательно');
         })
     })
+
+    describe(`Отмена заказа оператором`, () => {
+        it('Отмена заказа и проверка валидации пустой причины', () => {
+            cy.intercept('GET', '**/order/find-by/**').as('getOrderDetails');
+            cy.intercept('PUT', '**/order/cancel-order/**').as('cancelOrderRequest');
+
+            cy.get('button.cursor-pointer').contains('Войти').click();
+
+            // Проверяем, что модальное окно открылось
+            cy.get('[role="dialog"]').should('be.visible');
+
+            // Ввод данных в форму
+            cy.get('input[placeholder="Введите логин оператора"]').type("test@operator1");
+            cy.get('input[placeholder="Введите пароль"]').type("password123");
+
+            // Авторизация
+            cy.get('[role="dialog"]').contains('Войти').click();
+
+            // Проверяем, что модальное окно исчезло
+            cy.get('[role="dialog"]').should('not.exist');
+
+            // Переходим на страницу заказов
+            cy.get('a[href="#/orders"]').click();
+
+            // Ищем заказ, который не отменен (статус не "Отменен"/"CANCELLED")
+            cy.get('div.order-item', { timeout: 5000 })
+                .should('have.length.greaterThan', 0)
+                .each(($order) => {
+                    cy.wrap($order).within(() => {
+                        // Ищем кнопку "Отменить" и проверяем, что она не заблокирована
+                        cy.get('button')
+                            .filter(':contains("Отменить")')
+                            .then(($cancelButtons) => {
+                                // Проверяем, есть ли активные (не disabled) кнопки
+                                const activeButtons = $cancelButtons.filter(':not(:disabled)');
+
+                                if (activeButtons.length > 0) {
+                                    // Нашли активную кнопку "Отменить"
+                                    cy.wrap(activeButtons.first())
+                                        .should('be.visible')
+                                        .and('not.be.disabled')
+                                        .as('cancelButton');
+
+                                    // Нажимаем кнопку отмены заказа
+                                    cy.get('@cancelButton').click();
+
+                                    return false; // Прерываем цикл each
+                                }
+                            });
+                    });
+                });
+
+            //Проверяем, что модальное окно открылось
+            cy.get('[role="dialog"]').should('be.visible');
+            //Добавление причины отмены заказа
+            cy.get('[role="dialog"]').contains('Сохранить').click();
+            // Проверка на наличие предупреждения
+            cy.get('[data-slot="form-message"]')
+                .should('be.visible')
+                .and('contain.text', 'Это поле обязательно');
+        });
+    });
 
     describe(`Назначение себя оператором`, () => {
         it('Назначение себя оператором', () => {
@@ -661,4 +721,230 @@ describe('UI-tests', () => {
             });
         })
     })
+
+    describe(`Назначение оператора`, () => {
+        it('Оператором заказ не должен быть клиент', () => {
+            cy.intercept('GET', '**/users/operators').as('getOperators');
+
+            cy.get('button.cursor-pointer').contains('Войти').click();
+
+            // Проверяем, что модальное окно открылось
+            cy.get('[role="dialog"]').should('be.visible');
+
+            // Ввод данных в форму
+            cy.get('input[placeholder="Введите логин оператора"]').type("admin@test");
+            cy.get('input[placeholder="Введите пароль"]').type("password123");
+
+            // Авторизация
+            cy.get('[role="dialog"]').contains('Войти').click();
+
+            // Проверяем, что модальное окно исчезло
+            cy.get('[role="dialog"]').should('not.exist');
+
+            cy.get('a[href="#/orders"]').click();
+
+            cy.get('div.order-item', { timeout: 3000 })
+                .should('have.length.greaterThan', 0)
+                .first().as('firstOrder');
+
+            cy.get('@firstOrder')
+                .within(() => {
+                    // Переходим в детали заказа
+                    cy.get('a.cursor-pointer').contains('Заказ').click();
+                })
+
+            cy.wait('@getOperators').then((interception) => {
+                const operators = interception.response.body;
+
+                // Проверяем, что это массив
+                expect(operators).to.be.an('array');
+
+                // Проверяем каждый оператор
+                operators.forEach((operator, index) => {
+                    expect(operator.role, `Оператор ${index} (${operator.name || operator.id}) должен иметь role = "OPERATOR"`)
+                        .to.equal('OPERATOR');
+                });
+            })
+        })
+    })
+
+    describe(`Добавление блюда в заказ`, () => {
+        it('Добавление блюда в заказ и проверка количества', () => {
+            // Объявляем переменную для хранения начального количества блюд
+            let initialDishCount: number;
+
+            cy.intercept('PUT', '**/order/add-dish/*/*').as('addDishRequest');
+            cy.intercept('GET', '**/order/find-by/**').as('getOrderDetails');
+
+            cy.get('button.cursor-pointer').contains('Войти').click();
+
+            // Проверяем, что модальное окно открылось
+            cy.get('[role="dialog"]').should('be.visible');
+
+            // Ввод данных в форму
+            cy.get('input[placeholder="Введите логин оператора"]').type("test@operator1");
+            cy.get('input[placeholder="Введите пароль"]').type("password123");
+
+            // Авторизация
+            cy.get('[role="dialog"]').contains('Войти').click();
+
+            // Проверяем, что модальное окно исчезло
+            cy.get('[role="dialog"]').should('not.exist');
+
+            // Переходим на страницу заказов
+            cy.get('a[href="#/orders"]').click();
+
+            // Ожидаем загрузку списка заказов
+            cy.get('div.order-item', { timeout: 5000 })
+                .should('have.length.greaterThan', 0)
+                .first().as('firstOrder');
+
+            // Переходим в детали заказа
+            cy.get('@firstOrder')
+                .within(() => {
+                    cy.get('a.cursor-pointer').contains('Заказ').click();
+                });
+
+            // Ожидаем загрузки деталей заказа
+            cy.wait('@getOrderDetails').its('response.statusCode').should('eq', 200);
+
+            // Получаем начальное количество блюд в заказе и сохраняем в переменную
+            cy.get('.dish-list-item', { timeout: 5000 })
+                .find('> *')
+                .then(($dishes) => {
+                    initialDishCount = $dishes.length;
+                    cy.log(`Начальное количество блюд: ${initialDishCount}`);
+                });
+
+            // Нажимаем кнопку "Добавить блюдо"
+            cy.get('button.cursor-pointer').contains('Добавить блюдо').click();
+
+            // Проверяем, что модальное окно с блюдами открылось
+            cy.get('[role="dialog"]').should('be.visible');
+            cy.get('[role="dialog"]').contains('Меню').should('be.visible');
+
+            // Ждем загрузки блюд в модальном окне
+            cy.get('[role="dialog"]', { timeout: 5000 }).within(() => {
+                // Проверяем наличие блюд
+                cy.get('.dish-item-card', { timeout: 5000 })
+                    .should('have.length.greaterThan', 0)
+                    .first()
+                    .as('firstDishCard');
+            });
+
+            // Добавляем первое доступное блюдо в заказ
+            cy.get('@firstDishCard').within(() => {
+                // Нажимаем кнопку добавления блюда
+                cy.get('button').contains('Добавить в заказ').click({ force: true });
+            });
+
+            // Ожидаем успешного запроса на добавление блюда
+            cy.wait('@addDishRequest').then((interception) => {
+                expect(interception.response?.statusCode).to.equal(200);
+                expect(interception.response?.body).to.have.property('message');
+            });
+
+            // ЗАКРЫВАЕМ МОДАЛЬНОЕ ОКНО КЛИКОМ НА КРЕСТИК
+            cy.get('[role="dialog"]').within(() => {
+                cy.get('button[data-slot="dialog-close"]').click();
+            });
+
+            // Проверяем, что модальное окно закрылось
+            cy.get('[role="dialog"]').should('not.exist');
+
+            // Ожидаем обновления данных заказа
+            cy.wait('@getOrderDetails');
+
+            // Проверяем, что количество блюд увеличилось на 1
+            cy.get('.dish-list-item', { timeout: 5000 })
+                .find('> *')
+                .then(($dishes) => {
+                    const currentDishCount = $dishes.length;
+                    cy.log(`Текущее количество блюд: ${currentDishCount}`);
+                    cy.log(`Начальное количество было: ${initialDishCount}`);
+
+                    // Проверяем, что количество увеличилось на 1
+                    expect(currentDishCount).to.equal(initialDishCount + 1);
+                });
+
+            // Дополнительная проверка: проверяем, что появилось новое блюдо в списке
+            cy.get('.dish-list-item', { timeout: 5000 })
+                .find('> *')
+                .last()
+                .should('be.visible');
+        });
+    });
+
+    describe(`Редактирование блюда администратором`, () => {
+        it('Удаление фотографии блюда', () => {
+            let dishId: string;
+            let initialPhotoCount: number;
+
+            cy.intercept('POST', '**/api/foods/filter').as('getDishes');
+            cy.intercept('PUT', '**/api/foods/**').as('updateDish');
+
+            cy.get('button.cursor-pointer').contains('Войти').click();
+
+            // Проверяем, что модальное окно открылось
+            cy.get('[role="dialog"]').should('be.visible');
+
+            // Ввод данных в форму
+            cy.get('input[placeholder="Введите логин оператора"]').type("admin@test");
+            cy.get('input[placeholder="Введите пароль"]').type("password123");
+
+            // Авторизация
+            cy.get('[role="dialog"]').contains('Войти').click();
+
+            // Проверяем, что модальное окно исчезло
+            cy.get('[role="dialog"]').should('not.exist');
+
+            // Переход на страницу блюд
+            cy.get('a[href="#/dishManagement"]').click();
+
+            // Получаем данные блюда через API
+            cy.wait('@getDishes').then((interception) => {
+                const dishes = interception.response.body;
+                const dishWithPhotos = dishes?.find(d => d.photos?.length > 0);
+
+                if (!dishWithPhotos) {
+                    cy.log('Нет блюд с фотографиями, пропускаем тест');
+                    return;
+                }
+
+                dishId = dishWithPhotos.id;
+                initialPhotoCount = dishWithPhotos.photos.length;
+
+                cy.log(`Тестируем блюдо ${dishId} с ${initialPhotoCount} фото`);
+
+                // Находим и кликаем на кнопку редактирования этого блюда
+                cy.get(`[data-id="${dishId}"].dish-item-card`)
+                    .first()
+                    .within(() => {
+                        cy.get('.edit-btn').click();
+                    });
+            });
+
+            // Открываем форму редактирования
+            cy.get('[role="dialog"]').should('be.visible');
+
+            // Удаляем первую фотографию
+            cy.get('[role="dialog"]').within(() => {
+                // Находим первую кнопку удаления фотографии
+                cy.get('.remove-photo-into-order')
+                    .first()
+                    .click({ force: true });
+
+                // Сохраняем изменения
+                cy.get('button[type="submit"]').contains('Сохранить').click();
+            });
+
+            // Проверяем запрос на обновление
+            cy.wait('@updateDish').then((interception) => {
+                const requestBody = interception.request.body;
+                const updatedPhotoCount = requestBody?.photos?.length || 0;
+
+                expect(updatedPhotoCount).to.be.lessThan(initialPhotoCount);
+            });
+        });
+    });
 })

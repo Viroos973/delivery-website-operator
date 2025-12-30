@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog.tsx";
-import { Form, FormControl, FormField, FormItem } from "@/components/ui/form.tsx";
+import {Form, FormControl, FormField, FormItem, FormMessage} from "@/components/ui/form.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { useReasonDialog } from "./hooks/useReasonDialog";
@@ -31,9 +31,11 @@ const ReasonDialog = ({ isReason, setIsReason, order, reloadOrder }: ReasonDialo
                                         <FormControl>
                                             <Input placeholder="Причина отмены заказа" {...field} />
                                         </FormControl>
-                                        {fieldState.error && (
-                                            <p className="text-red-600 text-xs mt-1">{fieldState.error.message}</p>
-                                        )}
+                                        <FormMessage>
+                                            {fieldState.error && (
+                                                <p className="text-red-600 text-xs mt-1">{fieldState.error.message}</p>
+                                            )}
+                                        </FormMessage>
                                     </FormItem>
                                 )}
                             />
