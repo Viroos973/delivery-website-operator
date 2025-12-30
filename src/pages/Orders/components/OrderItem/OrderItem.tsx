@@ -7,6 +7,7 @@ import ReasonDialog from "../ReasonDialog/ReasonDialog.tsx";
 import React from "react";
 import { useOrderItem } from "@/pages/Orders/components/OrderItem/hooks/useOrderItem.ts";
 import { getPaymentMethod } from "@/utils/helpers/getPaymentMethod.ts";
+import { APPOINT_RESPONSIBLE_OPERATOR } from "@/utils/constants/envBugs.ts";
 
 interface OrderItemProps {
     order: Order;
@@ -73,7 +74,7 @@ const OrderItem: React.FC<OrderItemProps> = ({ order, reloadOrder }) => {
                             orderId={order.reservation.id}
                         />
                     ) : (
-                         <div>
+                        <div>
                             {order.reservation.operatorId === state.userId ? (
                                 <SelectStatus
                                     selected={{ id: order.reservation.status, name: order.reservation.status }}
@@ -108,7 +109,7 @@ const OrderItem: React.FC<OrderItemProps> = ({ order, reloadOrder }) => {
                         reloadOrder={reloadOrder} />
                     {state.authenticated && state.roles.includes('OPERATOR')
                         && (order.reservation.operatorId !== state.userId)
-                        && (order.reservation.status === "NEW") ? (
+                        && ((order.reservation.status === "NEW") || APPOINT_RESPONSIBLE_OPERATOR) ? (
                         <Button className="cursor-pointer" onClick={() => functions.appointOperator(order.reservation.id)}>
                             Назначить себя оператором
                         </Button>

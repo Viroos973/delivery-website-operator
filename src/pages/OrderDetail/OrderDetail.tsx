@@ -8,7 +8,8 @@ import HistoryDialog from "./components/HistoryDialog/HistoryDialog";
 import AddDishDialog from "./components/AddDichDialog/AddDishDialog";
 import ChangeOperatorDialog from "./components/ChangeOperatorDialog/ChangeOperatorDialog";
 import { TranslateStatus } from "@/utils/constants/translateStatus";
-import {getPaymentMethod} from "@/utils/helpers/getPaymentMethod.ts";
+import { getPaymentMethod } from "@/utils/helpers/getPaymentMethod.ts";
+import { APPOINT_RESPONSIBLE_OPERATOR } from "@/utils/constants/envBugs";
 
 const OrderDetail = () => {
     const { state, functions } = useOrderDetail();
@@ -16,8 +17,8 @@ const OrderDetail = () => {
     return (
         <div className="flex flex-col items-center mt-8 gap-8 w-full">
             {state.authenticated && state.roles.includes('OPERATOR')
-            && (state.order.data?.data.reservation.operatorId !== state.userId)
-            && (state.order.data?.data.reservation.status === "NEW") ? (
+                && (state.order.data?.data.reservation.operatorId !== state.userId)
+                && ((state.order.data?.data.reservation.status === "NEW") || APPOINT_RESPONSIBLE_OPERATOR) ? (
                 <div className="flex justify-end w-[90%]">
                     <Button className="cursor-pointer" onClick={() => functions.makeOperator(state.order.data?.data.reservation.id!)}>
                         Назначить себя оператором
@@ -32,11 +33,11 @@ const OrderDetail = () => {
                         </span>
                         {state.authenticated && state.roles.includes('OPERATOR') ? (
                             <MessageSquare className=" flex items-end h-[60%] cursor-pointer"
-                                           onClick={() => functions.setIsComment(true)}/>
+                                onClick={() => functions.setIsComment(true)} />
                         ) : null}
                         {state.order.data?.data && (
                             <CommentDialog isComment={state.isComment} setIsComment={functions.setIsComment}
-                                           order={state.order.data?.data}/>
+                                order={state.order.data?.data} />
                         )}
                     </div>
                     <div className="flex flex-col items-center">
@@ -83,8 +84,8 @@ const OrderDetail = () => {
                                 Сменить оператора
                             </Button>
                             <ChangeOperatorDialog isChangeOperator={state.isChangeOperator}
-                                                  setIsChangeOperator={functions.setIsChangeOperator} orderId={state.id || ''}
-                                                  reloadOrder={state.order.refetch} />
+                                setIsChangeOperator={functions.setIsChangeOperator} orderId={state.id || ''}
+                                reloadOrder={state.order.refetch} />
                         </div>
                     ) : null}
                 </div>
@@ -97,17 +98,17 @@ const OrderDetail = () => {
                                     Добавить блюдо
                                 </Button>
                                 <AddDishDialog isAddDish={state.isAddDish} setIsAddDish={functions.setIsAddDish}
-                                               orderId={state.order.data.data.reservation.id} reload={state.order.refetch}
-                                               orderDish={state.order.data?.data.meal} />
+                                    orderId={state.order.data.data.reservation.id} reload={state.order.refetch}
+                                    orderDish={state.order.data?.data.meal} />
                             </div>
                         ) : null}
                     </div>
                     <div className="flex flex-col w-full border border-black  divide-y divide-black">
                         {state.order.data?.data.meal.map(meal => (
                             <DishItem key={meal.id} meal={meal} handleDeleteDishFromOrder={functions.handleDeleteDishFromOrder}
-                                      roles={state.roles} authenticated={state.authenticated}
-                                      orderId={state.order.data?.data.reservation.id!} reload={state.order.refetch}
-                                      isDeleteBtnLock={(state.order.data && state.order.data.data.meal.length < 2) || false} />
+                                roles={state.roles} authenticated={state.authenticated}
+                                orderId={state.order.data?.data.reservation.id!} reload={state.order.refetch}
+                                isDeleteBtnLock={(state.order.data && state.order.data.data.meal.length < 2) || false} />
                         ))}
                     </div>
                     <CustomPagination totalPages={state.totalPage} />
