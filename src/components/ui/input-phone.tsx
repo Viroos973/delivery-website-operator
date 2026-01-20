@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
+import {NO_NORMALIZATION_PHONE} from "@/utils/constants/envBugs.ts";
 
 interface PhoneInputProps {
     value?: string;
@@ -32,6 +33,11 @@ export const PhoneInput = ({ value = '', onChange, onBlur, placeholder = "880055
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const input = e.target.value;
 
+        if (NO_NORMALIZATION_PHONE) {
+            onChange?.(input);
+            return
+        }
+
         const numbers = input.replace(/\D/g, '');
 
         let cleanNumber = numbers;
@@ -45,7 +51,7 @@ export const PhoneInput = ({ value = '', onChange, onBlur, placeholder = "880055
 
     return (
         <Input
-            value={displayValue}
+            value={NO_NORMALIZATION_PHONE ? value : displayValue}
             onChange={handleChange}
             onBlur={onBlur}
             placeholder={placeholder}

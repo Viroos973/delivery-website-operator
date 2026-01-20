@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/utils/contexts/auth";
 import { usePutChangeOperatorMutation } from "@/utils/api/hooks/usePutChangeOperatorForOrderMutation.ts";
 import { usePutChangeOrderStatusMutation } from "@/utils/api/hooks/usePutChangeOrderStatusMutation.ts";
+import {NO_REFETCH_EDIT_STATUS} from "@/utils/constants/envBugs.ts";
 
 export const useOrderItem = (reloadOrder: () => void) => {
     const { authenticated, roles, userId } = useAuth()
@@ -33,7 +34,7 @@ export const useOrderItem = (reloadOrder: () => void) => {
             })
         }
 
-        reloadOrder();
+        if (!NO_REFETCH_EDIT_STATUS) reloadOrder();
     })
 
     const formatDateTime = (dateTime: string) => {

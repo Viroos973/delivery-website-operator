@@ -3,6 +3,7 @@ import { useGetFoodsWithFiltersQuery } from "@/utils/api/hooks/useGetFoodsWithFi
 import { usePatchUpdateAvailabilityDishMutation } from "@/utils/api/hooks/usePatchUpdateAvailabilityDishMutation";
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import {NO_REFETCH_DELETE} from "@/utils/constants/envBugs.ts";
 
 const ITEMS_PER_PAGE = 8;
 export const useDishManagement = () => {
@@ -37,7 +38,9 @@ export const useDishManagement = () => {
     const handleDeleteDish = async (id: string) => {
         await deleteDish.mutateAsync({ params: { id } },
             {
-                onSuccess: () => dishes.refetch()
+                onSuccess: () => {
+                    if (!NO_REFETCH_DELETE) dishes.refetch()
+                }
             })
     }
 

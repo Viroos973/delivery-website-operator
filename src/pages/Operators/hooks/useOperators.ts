@@ -2,6 +2,7 @@ import { useDeleteOperatorByIdMutation } from "@/utils/api/hooks/useDeleteOperat
 import { useGetOperatorsQuery } from "@/utils/api/hooks/useGetOperatorsQuery";
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import {NO_REFETCH_DELETE} from "@/utils/constants/envBugs.ts";
 
 const ITEMS_PER_PAGE = 8;
 export const useOperators = () => {
@@ -20,7 +21,9 @@ export const useOperators = () => {
     const handleDeleteOperator = async (operatorId: string) => {
         await deleteOperator.mutateAsync({ params: { operatorId } },
             {
-                onSuccess: () => operators.refetch()
+                onSuccess: () => {
+                    if (!NO_REFETCH_DELETE) operators.refetch()
+                }
             })
     }
 
