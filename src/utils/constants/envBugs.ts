@@ -6,3 +6,7 @@ export const ERROR_ADD_NEW_DISH_INTO_ORDER = import.meta.env.VITE_ERROR_ADD_NEW_
 export const ALWAYS_SUCCESS_ABOUT_US = import.meta.env.VITE_ALWAYS_SUCCESS_ABOUT_US === "true";
 export const APPOINT_RESPONSIBLE_OPERATOR = import.meta.env.APPOINT_RESPONSIBLE_OPERATOR === "true";
 export const ALWAYS_SAVE_ABOUT_US = import.meta.env.VITE_ALWAYS_SAVE_ABOUT_US === "true";
+export const ALWAYS_NOT_SAVE_ABOUT_US = import.meta.env.VITE_ALWAYS_NOT_SAVE_ABOUT_US === "true";
+export const MIXED_BUTTONS_AVAILABLE_DISHES = import.meta.env.MIXED_BUTTONS_AVAILABLE_DISHES === "true";
+export const NOT_CHANGE_ORDER_STATUS = import.meta.env.NOT_CHANGE_ORDER_STATUS === "true";
+export const CHANGE_ORDER_STATUS = import.meta.env.CHANGE_ORDER_STATUS === "true";
