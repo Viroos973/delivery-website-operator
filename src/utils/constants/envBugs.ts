@@ -3,10 +3,13 @@ export const TOTAL_COST_NOT_UPDATE = import.meta.env.VITE_TOTAL_COST_NOT_UPDATE 
 export const PHOTO_NOT_DELETE = import.meta.env.VITE_PHOTO_NOT_DELETE === "true";
 export const FOR_NO_REASON = import.meta.env.VITE_FOR_NO_REASON === "true";
 export const ERROR_ADD_NEW_DISH_INTO_ORDER = import.meta.env.VITE_ERROR_ADD_NEW_DISH_INTO_ORDER === "true";
-export const ALWAYS_SUCCESS_ABOUT_US = import.meta.env.VITE_ALWAYS_SUCCESS_ABOUT_US === "true";
 export const APPOINT_RESPONSIBLE_OPERATOR = import.meta.env.APPOINT_RESPONSIBLE_OPERATOR === "true";
 export const ALWAYS_SAVE_ABOUT_US = import.meta.env.VITE_ALWAYS_SAVE_ABOUT_US === "true";
 export const ALWAYS_NOT_SAVE_ABOUT_US = import.meta.env.VITE_ALWAYS_NOT_SAVE_ABOUT_US === "true";
 export const MIXED_BUTTONS_AVAILABLE_DISHES = import.meta.env.MIXED_BUTTONS_AVAILABLE_DISHES === "true";
 export const NOT_CHANGE_ORDER_STATUS = import.meta.env.NOT_CHANGE_ORDER_STATUS === "true";
 export const CHANGE_ORDER_STATUS = import.meta.env.CHANGE_ORDER_STATUS === "true";
+export const NO_REFETCH_EDIT_STATUS = import.meta.env.VITE_NO_REFETCH_EDIT_STATUS === "true";
+export const NO_OPEN_ERROR_DELETE_DISH = import.meta.env.VITE_NO_OPEN_ERROR_DELETE_DISH === "true";
+export const NO_REFETCH_DELETE = import.meta.env.VITE_NO_REFETCH_DELETE === "true";
+export const NO_NORMALIZATION_PHONE = import.meta.env.VITE_NO_NORMALIZATION_PHONE === "true";
