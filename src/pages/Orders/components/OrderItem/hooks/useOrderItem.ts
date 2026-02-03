@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/utils/contexts/auth";
 import { usePutChangeOperatorMutation } from "@/utils/api/hooks/usePutChangeOperatorForOrderMutation.ts";
 import { usePutChangeOrderStatusMutation } from "@/utils/api/hooks/usePutChangeOrderStatusMutation.ts";
+import { NOT_CHANGE_ORDER_STATUS } from "@/utils/constants/envBugs";
 import {NO_REFETCH_EDIT_STATUS} from "@/utils/constants/envBugs.ts";
 
 export const useOrderItem = (reloadOrder: () => void) => {
@@ -23,15 +24,17 @@ export const useOrderItem = (reloadOrder: () => void) => {
     })
 
     const changeStatus = (async (id: string, orderId: string) => {
-        if (id == 'CANCELED') {
-            setIsReason(true);
-        }
-        else {
-            await changeOrderStatus.mutateAsync({
-                params: {
-                    orderId: orderId, status: id
-                }
-            })
+        if (!NOT_CHANGE_ORDER_STATUS) {
+            if (id == 'CANCELED') {
+                setIsReason(true);
+            }
+            else {
+                await changeOrderStatus.mutateAsync({
+                    params: {
+                        orderId: orderId, status: id
+                    }
+                })
+            }
         }
 
         if (!NO_REFETCH_EDIT_STATUS) reloadOrder();

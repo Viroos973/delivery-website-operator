@@ -1,6 +1,7 @@
 import { useDeleteDishByIdMutation } from "@/utils/api/hooks/useDeleteDishByIdMutation";
 import { useGetFoodsWithFiltersQuery } from "@/utils/api/hooks/useGetFoodsWithFiltersQuery";
 import { usePatchUpdateAvailabilityDishMutation } from "@/utils/api/hooks/usePatchUpdateAvailabilityDishMutation";
+import { MIXED_BUTTONS_AVAILABLE_DISHES } from "@/utils/constants/envBugs";
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {NO_REFETCH_DELETE} from "@/utils/constants/envBugs.ts";
@@ -45,6 +46,14 @@ export const useDishManagement = () => {
     }
 
     const handleDoAvailable = async (id: string, available: boolean) => {
+        if (MIXED_BUTTONS_AVAILABLE_DISHES) {
+            await doAvailable.mutateAsync({ params: { id, available: !available } },
+                {
+                    onSuccess: () => dishes.refetch()
+                })
+            return;
+        }
+
         await doAvailable.mutateAsync({ params: { id, available } },
             {
                 onSuccess: () => dishes.refetch()
