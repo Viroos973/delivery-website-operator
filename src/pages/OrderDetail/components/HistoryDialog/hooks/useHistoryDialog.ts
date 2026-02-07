@@ -1,7 +1,10 @@
 import { useGetStatusHistoryQuery } from "@/utils/api/hooks/useGetStatusHistoryQuery";
+import { usePutChangeOrderStatusMutation } from "@/utils/api/hooks/usePutChangeOrderStatusMutation";
+import { CHANGE_ORDER_STATUS } from "@/utils/constants/envBugs";
 
 export const useHistoryDialog = (order: Order) => {
     const statusHistory = useGetStatusHistoryQuery({ orderId: order.reservation.id })
+    const changeOrderStatus = usePutChangeOrderStatusMutation()
 
     const formatDateTime = (dateTime: string) => {
         const date = new Date(dateTime);
@@ -14,8 +17,18 @@ export const useHistoryDialog = (order: Order) => {
         return date.toLocaleString(undefined, options);
     }
 
+    const changeStatus = (async (status: string) => {
+        if (CHANGE_ORDER_STATUS) {
+            await changeOrderStatus.mutateAsync({
+                params: {
+                    orderId: order.reservation.id, status
+                }
+            })
+        }
+    })
+
     return {
         state: { statusHistory },
-        functions: { formatDateTime }
+        functions: { formatDateTime, changeStatus }
     }
 }

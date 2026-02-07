@@ -3,7 +3,7 @@ import { useEffect } from "react"
 import { editAboutSchema, type EditAboutSchema } from "../constants/EditAboutShema"
 import { zodResolver } from "@hookform/resolvers/zod";
 import { usePutEditAboutMutation } from "@/utils/api/hooks/usePutEditAbout";
-import {ALWAYS_SAVE_ABOUT_US} from "@/utils/constants/envBugs.ts";
+import { ALWAYS_NOT_SAVE_ABOUT_US, ALWAYS_SAVE_ABOUT_US } from "@/utils/constants/envBugs.ts";
 
 export const useEditAboutDialog = (setIsOpen: (isOpen: boolean) => void, isOpen: boolean,
     reloadAbout: () => void, abouts?: EditAboutSchema) => {
@@ -22,12 +22,14 @@ export const useEditAboutDialog = (setIsOpen: (isOpen: boolean) => void, isOpen:
     });
 
     const onSubmit = aboutForm.handleSubmit(async (value) => {
-        await editAbout.mutateAsync({
-            params: {
-                companyName: value.companyName, operatorPhone: value.operatorPhone, managerPhone: value.managerPhone,
-                contactEmail: value.contactEmail, mailAddress: value.mailAddress
-            }
-        })
+        if (!ALWAYS_NOT_SAVE_ABOUT_US) {
+            await editAbout.mutateAsync({
+                params: {
+                    companyName: value.companyName, operatorPhone: value.operatorPhone, managerPhone: value.managerPhone,
+                    contactEmail: value.contactEmail, mailAddress: value.mailAddress
+                }
+            })
+        }
 
         reloadAbout()
         aboutForm.reset()

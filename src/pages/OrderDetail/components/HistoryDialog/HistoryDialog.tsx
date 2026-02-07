@@ -20,7 +20,7 @@ const HistoryDialog = ({ isHistory, setIsHistory, order }: HistoryDialogProps) =
                 </DialogHeader>
                 <div className="flex flex-col w-full gap-4">
                     {state.statusHistory.data?.data.map(status => (
-                        <HistoryItem key={status.id} status={status} order={order} formatDateTime={functions.formatDateTime} />
+                        <HistoryItem key={status.id} status={status} order={order} formatDateTime={functions.formatDateTime} changeStatus={functions.changeStatus} />
                     ))}
                 </div>
                 <Button className="cursor-pointer" onClick={() => setIsHistory(false)}>Понятно</Button>
