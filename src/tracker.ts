@@ -156,20 +156,15 @@ class UserTracker {
         const logsToSend = this.logsQueue.splice(0, this.batchSize);
 
         try {
-            console.log(`Отправка ${logsToSend.length} логов...`);
-            console.log(logsToSend)
-
-            /*const response = await fetch(this.endpoint, {
+            const response = await fetch(this.endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ logs: logsToSend })
+                body: JSON.stringify(logsToSend)
             });
 
             if (!response.ok) {
                 console.error(`HTTP ${response.status}`);
-            }*/
-
-            console.log(`Логи отправлены`);
+            }
         } catch (error) {
             console.error('Ошибка отправки:', error);
             this.logsQueue.unshift(...logsToSend);
@@ -194,5 +189,5 @@ class UserTracker {
     }
 }
 
-const tracker = new UserTracker('https://ваш-сервер.ru/api/logs', 15, 10000);
+const tracker = new UserTracker('http://localhost:8100/api/logs/frontend', 15, 10000);
 export default tracker;
