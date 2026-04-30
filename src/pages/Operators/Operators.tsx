@@ -15,17 +15,23 @@ const Operators = () => {
                 <NewOperatorDialog isOpen={state.isOpen} setIsOpen={functions.setIsOpen} newOperator={state.newOperator}
                     reloadOperators={state.operators.refetch} />
             </div>
-            <div className='flex flex-col items-center w-[90%] border border-black rounded-lg divide-y divide-black'>
-                {
-                    state.displayedData.map(operator => (
-                        <OperatorItem operator={operator} />
-                    ))
-                }
-            </div>
+            {state.displayedData.length === 0 ? (
+                <div className='flex flex-col items-center w-[90%]'>
+                    <span>Нет операторов в системе</span>
+                </div>
+            ) : (
+                <div className='flex flex-col items-center w-[90%] border border-black rounded-lg divide-y divide-black'>
+                    {
+                        state.displayedData.map(operator => (
+                            <OperatorItem operator={operator} />
+                        ))
+                    }
+                </div>
+            )}
             <div className='mb-6'>
                 <CustomPagination totalPages={state.totalPage} />
             </div>
-        </div>
+        </div >
     )
 }
 
