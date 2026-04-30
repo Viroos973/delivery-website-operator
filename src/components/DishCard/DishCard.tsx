@@ -1,9 +1,9 @@
-import {Card, CardContent, CardFooter, CardTitle} from "@/components/ui/card.tsx";
-import {Star} from "lucide-react";
+import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card.tsx";
+import { Star } from "lucide-react";
 import React from "react";
-import {Badge} from "@/components/ui/badge.tsx";
-import {NavLink} from "react-router-dom";
-import {DISH_NOT_FOUND} from "@/utils/constants/envBugs.ts";
+import { Badge } from "@/components/ui/badge.tsx";
+import { NavLink } from "react-router-dom";
+import { DISH_NOT_FOUND } from "@/utils/constants/envBugs.ts";
 
 interface DishCardProps extends Dish {
     children?: React.ReactNode;
@@ -33,17 +33,17 @@ const DishCard = ({ id, photos, name, price, rate, description, children }: Dish
 
                     return (
                         <div key={position} className="relative">
-                            <Star size={20} className="text-gray-300 fill-gray-300"/>
+                            <Star size={20} className="text-gray-300 fill-gray-300" />
                             <div className="absolute top-0 left-0 overflow-hidden"
-                                 style={{width: `${fillPercentage}%`}}
+                                style={{ width: `${fillPercentage}%` }}
                             >
-                                <Star size={20} className="text-yellow-500 fill-yellow-500"/>
+                                <Star size={20} className="text-yellow-500 fill-yellow-500" />
                             </div>
                         </div>
                     );
                 })}
             </div>
-            <p className="line-clamp-3 text-center break-words overflow-wrap-anywhere">
+            <p className="line-clamp-3 text-center break-words overflow-wrap-anywhere px-6">
                 {description}
             </p>
         </CardContent>
