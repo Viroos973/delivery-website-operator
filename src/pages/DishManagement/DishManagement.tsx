@@ -10,10 +10,10 @@ const DishManagement = () => {
     const { state, functions } = useDishManagement();
 
     return (
-        <div className="flex flex-col mt-8 mb-8 gap-12 w-full px-16">
-            <div className='flex flex-row justify-between items-center'>
-                <span className='text-4xl font-medium text-center flex-1'>Управление блюдами</span>
-                <Button className="cursor-pointer" onClick={() => functions.setIsOpen(true)}>
+        <div className="flex flex-col mt-8 mb-8 gap-12 w-full px-4 md:px-16">
+            <div className='flex flex-col md:flex-row justify-between items-center gap-4'>
+                <span className='text-2xl md:text-4xl font-medium text-center flex-1'>Управление блюдами</span>
+                <Button className="cursor-pointer w-full md:w-auto" onClick={() => functions.setIsOpen(true)}>
                     {"Добавить блюдо"}
                 </Button>
                 <NewDishDialog isOpen={state.isOpen} setIsOpen={functions.setIsOpen} reloadDishes={state.dishes.refetch} />
@@ -24,12 +24,12 @@ const DishManagement = () => {
                         <div className="flex flex-row justify-between items-center w-full">
                             {dish.isAvailable ? (
                                 <Button className="cursor-pointer lock-btn"
-                                        onClick={() => functions.handleDoAvailable(dish.id, false)}>
+                                    onClick={() => functions.handleDoAvailable(dish.id, false)}>
                                     <Lock />
                                 </Button>
                             ) : (
                                 <Button className="cursor-pointer lock-open-btn"
-                                        onClick={() => functions.handleDoAvailable(dish.id, true)}>
+                                    onClick={() => functions.handleDoAvailable(dish.id, true)}>
                                     <LockOpen />
                                 </Button>
                             )}
@@ -45,7 +45,7 @@ const DishManagement = () => {
                     </DishCard>
                 ))}
                 <EditDishDialog isOpen={state.isOpenEdit} setIsOpen={functions.setIsOpenEdit}
-                                reloadDishes={state.dishes.refetch} dishId={state.editDishId} />
+                    reloadDishes={state.dishes.refetch} dishId={state.editDishId} />
             </div>
             <CustomPagination totalPages={state.totalPage} />
         </div>
