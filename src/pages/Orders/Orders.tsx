@@ -1,12 +1,12 @@
 import { useOrders } from "./hooks/useOrders";
 import OrderItem from "./components/OrderItem/OrderItem.tsx";
-import {SearchIcon} from "lucide-react";
+import { SearchIcon } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
-import {Input} from "@/components/ui/input.tsx";
-import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.tsx";
-import {ROUTES} from "@/utils/constants/routes.ts";
-import {NavLink} from "react-router-dom";
-import {Button} from "@/components/ui/button.tsx";
+import { Input } from "@/components/ui/input.tsx";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select.tsx";
+import { ROUTES } from "@/utils/constants/routes.ts";
+import { NavLink } from "react-router-dom";
+import { Button } from "@/components/ui/button.tsx";
 
 const Orders = () => {
     const { state, functions } = useOrders();
@@ -19,18 +19,18 @@ const Orders = () => {
                     <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                         <Input
                             defaultValue={state.filters.operators}
-                            leftIcon={<SearchIcon className='h-5 w-5'/>}
+                            leftIcon={<SearchIcon className='h-5 w-5' />}
                             placeholder="Поиск..."
                             onChange={(e) => functions.debouncedSearchByName(e.target.value)}
                             className='h-10 sm:max-w-64 w-full'
                         />
                         <Select value={state.filters.statuses || "all"} onValueChange={functions.handleSelectStatus}>
                             <SelectTrigger className="!h-10 sm:max-w-64 w-full">
-                                <SelectValue placeholder="Категория блюда"/>
+                                <SelectValue placeholder="Статус блюда" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectGroup>
-                                    <SelectItem value="all">Все категории</SelectItem>
+                                    <SelectItem value="all">Все статусы</SelectItem>
                                     {state.statuses.map(status => (
                                         <SelectItem value={status.id}>{status.label}</SelectItem>
                                     ))}
@@ -49,12 +49,12 @@ const Orders = () => {
                     <div className="flex justify-items-start items-center gap-4">
                         <span>Мои заказы</span>
                         <Switch className="cursor-pointer" checked={state.isMyOrder}
-                                onCheckedChange={(checked: boolean) => functions.handleSetIsMyOrder(checked)}/>
+                            onCheckedChange={(checked: boolean) => functions.handleSetIsMyOrder(checked)} />
                     </div>
                     <div className="flex justify-items-start items-center gap-4">
                         <span>Заказы без оператора</span>
                         <Switch className="cursor-pointer" checked={state.isOrderWithoutOperator}
-                                onCheckedChange={(checked: boolean) => functions.handleSetWithoutOperator(checked)}/>
+                            onCheckedChange={(checked: boolean) => functions.handleSetWithoutOperator(checked)} />
                     </div>
                 </div>
             )}
@@ -62,7 +62,7 @@ const Orders = () => {
                 <div
                     className='flex flex-col items-center w-[90%] border border-black rounded-lg divide-y divide-black mb-4'>
                     {state.activeQuery.data.map(order => (
-                        <OrderItem order={order} reloadOrder={state.activeQuery.refetch}/>
+                        <OrderItem order={order} reloadOrder={state.activeQuery.refetch} />
                     ))}
                 </div>
             ) : (
