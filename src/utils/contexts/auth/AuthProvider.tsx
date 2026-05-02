@@ -8,8 +8,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
     useEffect(() => {
-        const token = localStorage.getItem(USER_TOKEN);
-        setIsAuthenticated(!!token);
+        const token = getUserToken();
+
+        if (!token) {
+            setIsAuthenticated(false);
+            return;
+        }
+
+        try {
+            const data = getDataJWT(token);
+
+            if (data.exp * 1000 < Date.now()) {
+                setIsAuthenticated(false);
+            } else {
+                setIsAuthenticated(true);
+            }
+        } catch {
+            setIsAuthenticated(false);
+        }
     }, []);
 
     const login = (token: string, refresh: string) => {
@@ -21,6 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const logout = () => {
         localStorage.removeItem(USER_TOKEN);
         localStorage.removeItem(REFRESH_TOKEN);
+        localStorage.removeItem('user_tracking_id');
         setIsAuthenticated(false);
 
         if (window.location.pathname !== '/') {

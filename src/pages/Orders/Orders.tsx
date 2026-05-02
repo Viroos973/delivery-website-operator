@@ -20,9 +20,9 @@ const Orders = () => {
                         <Input
                             defaultValue={state.filters.operators}
                             leftIcon={<SearchIcon className='h-5 w-5' />}
-                            placeholder="Поиск..."
+                            placeholder="Поиск по операторам..."
                             onChange={(e) => functions.debouncedSearchByName(e.target.value)}
-                            className='h-10 sm:max-w-64 w-full'
+                            className='h-10 w-full sm:w-52'
                         />
                         <Select value={state.filters.statuses || "all"} onValueChange={functions.handleSelectStatus}>
                             <SelectTrigger className="!h-10 sm:max-w-64 w-full">

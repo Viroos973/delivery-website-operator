@@ -11,6 +11,14 @@ const Header = () => {
 
     const NavigationContent = ({ isMobile = false }: { isMobile?: boolean }) => (
         <div className={`flex ${isMobile ? "flex-col gap-4 p-4" : "items-center gap-8"}`}>
+            {isMobile && state.abouts.data?.data.operatorPhone && (
+                <a
+                    href={`tel:${state.abouts.data.data.operatorPhone}`}
+                    className="text-lg border-b pb-4"
+                >
+                    Тел. оператора: {state.abouts.data?.data.operatorPhone}
+                </a>
+            )}
             <NavLink to={ROUTES.ROOT} onClick={isMobile ? () => functions.setIsMenuOpen(false) : undefined}
                      className={({ isActive }) =>
                          isActive ? "text-blue-600 font-medium" : "hover:text-blue-500"
@@ -92,7 +100,15 @@ const Header = () => {
 
     return (
         <div className="flex justify-between items-center w-full h-[100px] border-b p-12">
-            <p className="underline">HITS Delivery service</p>
+            <div className="flex items-end gap-8">
+                <p className="underline">HITS Delivery service</p>
+                {state.abouts.data?.data.operatorPhone && (
+                    <a href={`tel:${state.abouts.data.data.operatorPhone}`}
+                       className="hidden lg:block text-sm">
+                        Тел. оператора: {state.abouts.data?.data.operatorPhone}
+                    </a>
+                )}
+            </div>
             <div className="hidden xl:block">
                 <NavigationContent/>
             </div>
@@ -110,7 +126,7 @@ const Header = () => {
                     </SheetContent>
                 </Sheet>
             </div>
-            <LoginDialog isOpen={state.isOpenLogin} setIsOpen={functions.setIsOpenLogin} />
+            <LoginDialog isOpen={state.isOpenLogin} setIsOpen={functions.setIsOpenLogin}/>
         </div>
     )
 }

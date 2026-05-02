@@ -20,11 +20,7 @@ export const useOrderDetail = () => {
     const [isChangeOperator, setIsChangeOperator] = useState<boolean>(false);
     const [isAddDish, setIsAddDish] = useState<boolean>(false);
     const [isHistory, setIsHistory] = useState<boolean>(false);
-    const [comment, setComment] = useState<NewComment>(
-        {
-            comment: ''
-        }
-    );
+    const [comment, setComment] = useState<NewComment>({comment: ''});
 
     const totalPrice = useMemo(() => {
         const currentPrice = order.data?.data.reservation.price;

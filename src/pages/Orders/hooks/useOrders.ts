@@ -140,10 +140,18 @@ export const useOrders = () => {
         }
     });
 
+    const sortOrders = (orders: Order[] | undefined) => {
+        if (!orders) return orders;
+
+        return [...orders].sort((a, b) => {
+            return b.reservation.orderNumber - a.reservation.orderNumber;
+        });
+    };
+
     const activeQuery = useMemo(() => {
         if (isAdmin) {
             return {
-                data: ordersWithFilters.data?.data,
+                data: sortOrders(ordersWithFilters.data?.data),
                 refetch: ordersWithFilters.refetch
             };
         } else if (!isAdmin && isMyOrder && isOrderWithoutOperator) {
@@ -157,7 +165,7 @@ export const useOrders = () => {
             );
 
             return {
-                data: uniqueData,
+                data: sortOrders(uniqueData),
                 refetch: () => {
                     myOrders.refetch();
                     ordersWithoutOperator.refetch();
@@ -165,12 +173,12 @@ export const useOrders = () => {
             };
         } else if (!isAdmin && isMyOrder) {
             return {
-                data: myOrders.data?.data,
+                data: sortOrders(myOrders.data?.data),
                 refetch: myOrders.refetch
             };
         } else if (!isAdmin && isOrderWithoutOperator) {
             return {
-                data: ordersWithoutOperator.data?.data,
+                data: sortOrders(ordersWithoutOperator.data?.data),
                 refetch: ordersWithoutOperator.refetch
             };
         }

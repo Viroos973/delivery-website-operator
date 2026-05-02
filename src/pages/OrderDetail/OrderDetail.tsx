@@ -10,12 +10,13 @@ import ChangeOperatorDialog from "./components/ChangeOperatorDialog/ChangeOperat
 import { TranslateStatus } from "@/utils/constants/translateStatus";
 import { getPaymentMethod } from "@/utils/helpers/getPaymentMethod.ts";
 import { APPOINT_RESPONSIBLE_OPERATOR } from "@/utils/constants/envBugs";
+import {HoverCard, HoverCardContent, HoverCardTrigger} from "@/components/ui/hover-card.tsx";
 
 const OrderDetail = () => {
     const { state, functions } = useOrderDetail();
 
     return (
-        <div className="flex flex-col items-center mt-8 gap-8 w-full">
+        <div className="flex flex-col items-center my-8 gap-8 w-full">
             {state.authenticated && state.roles.includes('OPERATOR')
                 && (state.order.data?.data.reservation.operatorId !== state.userId)
                 && ((state.order.data?.data.reservation.status === "NEW") || APPOINT_RESPONSIBLE_OPERATOR) ? (
@@ -25,7 +26,7 @@ const OrderDetail = () => {
                     </Button>
                 </div>
             ) : null}
-            <div className="flex flex-col w-[90%] border border-black rounded-lg divide-y divide-black mb-8">
+            <div className="flex flex-col w-[90%] border border-black rounded-lg divide-y divide-black">
                 <div className="flex flex-row justify-between p-8 items-center">
                     <div className="flex flex-row gap-4">
                         <span className="text-2xl font-medium underline">
@@ -57,9 +58,23 @@ const OrderDetail = () => {
                         </div>
                     </div>
                     <div>
-                        <Button className="cursor-pointer" onClick={() => functions.setIsHistory(true)}>
-                            {TranslateStatus[state.order.data?.data.reservation.status || '']}
-                        </Button>
+                        <HoverCard openDelay={100} closeDelay={100}>
+                            <HoverCardTrigger asChild>
+                                <Button className="cursor-pointer" onClick={() => functions.setIsHistory(true)}>
+                                    {TranslateStatus[state.order.data?.data.reservation.status || '']}
+                                </Button>
+                            </HoverCardTrigger>
+                            {state.order.data?.data.reservation.status === "CANCELED" && (
+                                <HoverCardContent>
+                                    <div className="flex flex-col gap-1">
+                                        <h4 className="font-medium">Причина отмены</h4>
+                                        <p className="text-sm">
+                                            {state.order.data.data.reservation.declineReason || "Не указана"}
+                                        </p>
+                                    </div>
+                                </HoverCardContent>
+                            )}
+                        </HoverCard>
                         {state.order.data?.data && (
                             <HistoryDialog isHistory={state.isHistory} setIsHistory={functions.setIsHistory}
                                 order={state.order.data?.data} />
@@ -114,6 +129,16 @@ const OrderDetail = () => {
                     <CustomPagination totalPages={state.totalPage} />
                 </div>
             </div>
+            {state.order.data?.data.reservation.comment && (
+                <div className="w-full border border-black rounded-lg p-4">
+                    <span className="font-medium">
+                        Комментарий оператора:
+                    </span>
+                    <p className="mt-2">
+                        {state.order.data.data.reservation.comment}
+                    </p>
+                </div>
+            )}
         </div>
     )
 }

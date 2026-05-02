@@ -10,6 +10,7 @@ import Orders from "./pages/Orders/Orders";
 import Statistics from "@/pages/Statistics/Statistics.tsx";
 import DishCategory from "@/pages/DishCategory/DishCategory.tsx";
 import OrderDetail from "./pages/OrderDetail/OrderDetail";
+import {RoleRoute} from "@/components/RoleRoute/RoleRoute.tsx";
 
 export const router = createHashRouter([
     {
@@ -21,36 +22,46 @@ export const router = createHashRouter([
                 element: <About />
             },
             {
-                path: ROUTES.DISH_DETAILS,
-                element: <DishDetail />
+                element: <RoleRoute role="OPERATOR" />,
+                children: [
+                    {
+                        path: ROUTES.DISH_DETAILS,
+                        element: <DishDetail />
+                    },
+                    {
+                        path: ROUTES.PROFILE,
+                        element: <Profile/>
+                    },
+                    {
+                        path: ROUTES.ORDERS,
+                        element: <Orders />
+                    },
+                    {
+                        path: ROUTES.ORDER_DETAILS,
+                        element: <OrderDetail />
+                    }
+                ]
             },
             {
-                path: ROUTES.OPERATORS,
-                element: <Operators />
-            },
-            {
-                path: ROUTES.DISH_MANAGEMENT,
-                element: <DishManagement />
-            },
-            {
-                path: ROUTES.PROFILE,
-                element: <Profile/>
-            },
-            {
-                path: ROUTES.ORDERS,
-                element: <Orders />
-            },
-            {
-                path: ROUTES.STATISTICS,
-                element: <Statistics />
-            },
-            {
-                path: ROUTES.DISH_CATEGORY,
-                element: <DishCategory />
-            },
-            {
-                path: ROUTES.ORDER_DETAILS,
-                element: <OrderDetail />
+                element: <RoleRoute role="ADMIN" />,
+                children: [
+                    {
+                        path: ROUTES.STATISTICS,
+                        element: <Statistics />
+                    },
+                    {
+                        path: ROUTES.OPERATORS,
+                        element: <Operators />
+                    },
+                    {
+                        path: ROUTES.DISH_CATEGORY,
+                        element: <DishCategory />
+                    },
+                    {
+                        path: ROUTES.DISH_MANAGEMENT,
+                        element: <DishManagement />
+                    },
+                ]
             }
         ]
     }
